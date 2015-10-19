@@ -75,7 +75,7 @@ class GraphTest extends PHPUnit_Framework_TestCase
     public function testThatGraphIsCreated()
     {
         $db = new DB(self::$logLevel, self::$entityManager);
-        $nodeID = '68725120d3ed';
+        $nodeID = 'blaID';
 
         TestUtils::clearDB(self::$schemaTool, self::$classes);
 
@@ -140,4 +140,9 @@ class GraphTest extends PHPUnit_Framework_TestCase
         }
     }
 
+
+    public static function tearDownAfterClass()
+    {
+        self::$schemaTool->dropDatabase();
+    }
 }
