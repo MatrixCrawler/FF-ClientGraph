@@ -88,7 +88,7 @@ class Graph
         $db = new DB($this->logLevel, $this->entityManager);
         $nodeData = $db->getNodeData($nodeID);
 
-        $nodeName = 'undefined';
+        $nodeName = 'Unbekannt';
         if ($nodeData && count($nodeData) >= 1) {
             $nodeName = $nodeData[0]->getNode()->getName();
         }
@@ -212,7 +212,7 @@ class Graph
 
         $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 35, "Last valid data: " . $lastTimestamp->format('d.m.Y H:i:s'), array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
         $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 50, "Image generated: " . date('d.m.Y H:i:s'), array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
-        $image->drawText(Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 40, "Node: " . $nodeName, array('FontSize' => 10, "Align" => TEXT_ALIGN_BOTTOMLEFT));
+        $image->drawText(Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 40, 'Node: ' . $nodeName, array('FontSize' => 10, 'Align' => TEXT_ALIGN_BOTTOMLEFT));
 
         return $image;
     }

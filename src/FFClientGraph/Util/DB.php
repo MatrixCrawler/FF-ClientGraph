@@ -181,7 +181,7 @@ class DB
     /**
      * Get list of nodes from DB
      *
-     * @return mixed|null
+     * @return Node[]|null
      */
     public function getNodes()
     {
@@ -193,7 +193,7 @@ class DB
      * Get data for specified node of the last 24hrs
      *
      * @param $nodeID
-     * @return array|null An array of NodeStats or null
+     * @return NodeStats[]|null An array of NodeStats or null
      */
     public function getNodeData($nodeID)
     {
@@ -212,14 +212,6 @@ class DB
             ->setParameter('nodeId', $nodeID);
         $query = $qb->getQuery();
         return $query->getResult();
-    }
-
-    /**
-     * @return EntityManager
-     */
-    public function getEntityManager()
-    {
-        return $this->entityManager;
     }
 
     /**
@@ -252,55 +244,6 @@ class DB
             return $result[0]->getDataTimestamp()->getTimestamp();
         }
         return null;
-    }
-
-    /**
-     * Check if the last data fetch is at least 5 minutes ago
-     *
-     * @param string|null $nodeId
-     * @return bool
-     * @deprecated
-     */
-    private function isLastDataFetchFiveMinutesAgo($nodeId = null)
-    {
-        $this->logger->addDebug('Check if data fetch is five minutes ago for node ' . $nodeId, [get_class()]);
-        $this->logger->addDebug('Current timestamp ' . $this->timeStamp->format('c'), [get_class()]);
-
-        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\DataTimestamp');
-        $timestampMinusFiveMinutes = new DateTime($this->timeStamp->format('c'));
-
-        $timestampMinusFiveMinutes->sub(new DateInterval('PT5M'));
-
-        $this->logger->addDebug('Timestamp minus 5 minutes ' . $timestampMinusFiveMinutes->format('c'), [get_class()]);
-
-        $qb = $nodeTimestampRepository->createQueryBuilder('dt');
-        $qb->orderBy('dt.id', 'DESC')
-            ->setMaxResults(1);
-        $queryForNewestEntry = $qb->getQuery();
-        $newestEntry = $queryForNewestEntry->getResult();
-        if (!$newestEntry) {
-            return true;
-        }
-        $this->logger->addDebug('Newest timestamp ' . $newestEntry[0]->getTimestamp()->format('c'), [get_class()]);
-
-        if ($nodeId) {
-            $nodeRepo = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
-            $node = $nodeRepo->findBy(['nodeId' => $nodeId]);
-
-            if (!$node) {
-                return true;
-            }
-
-            $this->logger->addDebug('Found node', [get_class()]);
-
-            $nodeDataRepo = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-            $nodeData = $nodeDataRepo->findBy(['node' => $node, 'dataTimestamp' => $newestEntry[0]]);
-            if (!$nodeData) {
-                return true;
-            }
-        }
-
-        return $newestEntry[0]->getTimestamp() < $timestampMinusFiveMinutes;
     }
 
     /**

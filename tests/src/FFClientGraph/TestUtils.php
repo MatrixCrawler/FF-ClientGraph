@@ -57,6 +57,7 @@ class TestUtils
         } else {
             $node = new Node();
             $node->setNodeId($nodeId);
+            $node->setName($nodeId);
         }
 
         $statData = new NodeStats();

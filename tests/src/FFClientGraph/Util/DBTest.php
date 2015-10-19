@@ -176,6 +176,9 @@ class DBTest extends PHPUnit_Framework_TestCase
         $testResult = $db->getNodeData('blaID');
         self::assertEquals(count($testResult), count($result));
         self::assertInstanceOf('FFClientGraph\Entities\NodeStats', $testResult[0]);
+        self::assertInstanceOf('FFClientGraph\Entities\Node', $testResult[0]->getNode());
+        self::assertNotNull($testResult[0]->getNode()->getName());
+        self::assertNotEmpty($testResult[0]->getNode()->getName());
     }
 
     public function testGetNodes()
