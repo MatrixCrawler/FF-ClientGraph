@@ -28,7 +28,7 @@ class JSONTest extends PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        self::$PATH_TO_LOCAL_JSON = __DIR__ . '/../../../resources/test_small.JSON';
+        self::$PATH_TO_LOCAL_JSON = __DIR__ . '/../../../resources/test_small.json';
     }
 
     public function testGetJSONFromLocalIsNotNull()

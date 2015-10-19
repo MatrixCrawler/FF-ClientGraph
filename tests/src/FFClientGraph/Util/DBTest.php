@@ -88,7 +88,7 @@ class DBTest extends PHPUnit_Framework_TestCase
 
         TestUtils::clearDB(self::$schemaTool, self::$classes);
 
-        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.JSON'), true);
+        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.json'), true);
         $db->saveSingleNodeData($nodeData);
 
         $nodeRepository = self::$entityManager->getRepository('FFClientGraph\Entities\Node');
@@ -108,7 +108,7 @@ class DBTest extends PHPUnit_Framework_TestCase
     public function testThatDataWillNotBeSavedIfWeHaveTheSameDBInstance(DB $db)
     {
         sleep(1);
-        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.JSON'), true);
+        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.json'), true);
         $db->saveSingleNodeData($nodeData);
 
         $nodeRepository = self::$entityManager->getRepository('FFClientGraph\Entities\Node');
@@ -127,7 +127,7 @@ class DBTest extends PHPUnit_Framework_TestCase
     {
         sleep(1);
         $db = new DB(self::$logLevel, self::$entityManager);
-        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.JSON'), true);
+        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.json'), true);
         $db->saveSingleNodeData($nodeData);
 
         $nodeRepository = self::$entityManager->getRepository('FFClientGraph\Entities\Node');
@@ -197,7 +197,7 @@ class DBTest extends PHPUnit_Framework_TestCase
         $db = new DB(self::$logLevel, self::$entityManager);
         TestUtils::clearDB(self::$schemaTool, self::$classes);
 
-        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.JSON'), true);
+        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
         $db->saveNodes($nodeData);
 
         $nodeRepository = self::$entityManager->getRepository('FFClientGraph\Entities\Node');
