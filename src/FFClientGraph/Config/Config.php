@@ -25,12 +25,12 @@ class Config
      * Loglevel setting
      * please choose between Logger::DEBUG, Logger::INFO, Logger::WARNING, Logger::ERROR
      */
-    const LOGLEVEL = Logger::DEBUG;
+    const LOGLEVEL = Logger::ERROR;
 
     /**
      * Path to the node JSON
      */
-    const DATA_PATH = 'http://map.fichtenfunk.freifunk.ruhr/json';
+    const DATA_PATH = '';
 
     /**
      * Path where the DB is to be stored (if you are using sqlite)
@@ -84,4 +84,9 @@ class Config
      * If it is older than the given minutes it will be generated.
      */
     const CACHETIME_IMAGE = 5;
+
+    /**
+     * Number of retries for fetching the remote json
+     */
+    const MAX_RETRIES = 2;
 }

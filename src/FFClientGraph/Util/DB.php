@@ -10,6 +10,7 @@ namespace FFClientGraph\Util;
 
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -111,6 +112,7 @@ class DB
             $this->entityManager = $entityManager;
         }
         $this->timeStamp = new DateTime();
+        $this->timeStamp->setTimezone(new DateTimeZone('UTC'));
         $this->dataTimeStamp = null;
     }
 
@@ -294,6 +296,22 @@ class DB
     }
 
     /**
+     * Return existing node
+     *
+     * @param string $nodeId
+     * @return Node|null
+     */
+    public function getExistingNode($nodeId)
+    {
+        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
+        $result = $nodeTimestampRepository->findBy(['nodeId' => $nodeId]);
+        if ($result) {
+            return $result[0];
+        }
+        return null;
+    }
+
+    /**
      * Return the number of dataTimestamps that are younger than 24hrs
      * @return int
      */
@@ -335,7 +353,8 @@ class DB
     /**
      * Update the database schema if needed
      */
-    public function updateSchema() {
+    public function updateSchema()
+    {
         $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\Node');
         $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
         $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\DataTimestamp');

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes
- * Date: 13.10.2015
- * Time: 18:07
- */
 
 namespace FFClientGraph\Util;
 

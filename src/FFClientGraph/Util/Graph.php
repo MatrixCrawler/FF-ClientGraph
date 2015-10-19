@@ -1,20 +1,16 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes Brunswicker
- * Date: 15.10.2015
- * Time: 08:55
- */
 
 namespace FFClientGraph\Util;
 
 use CpChart\Classes\pData;
 use CpChart\Classes\pImage;
 use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
+use FFClientGraph\Entities\NodeStats;
 use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -81,16 +77,18 @@ class Graph
     /**
      * Function to create a graph for a given node
      *
-     * @param $nodeID
+     * @param string $nodeID
      */
     public function createGraph($nodeID)
     {
+        $this->logger->addDebug("Create Graph :" . $nodeID, [get_class()]);
         $db = new DB($this->logLevel, $this->entityManager);
         $nodeData = $db->getNodeData($nodeID);
 
         $nodeName = 'Unbekannt';
         if ($nodeData && count($nodeData) >= 1) {
-            $nodeName = $nodeData[0]->getNode()->getName();
+            $nodeName = $db->getExistingNode($nodeID)->getName();
+            $this->logger->addDebug("Nodename :" . $nodeName, [get_class()]);
         }
 
         $lastTimestamp = $db->getLastTimestamp($nodeID);
@@ -105,7 +103,7 @@ class Graph
     /**
      * Function to prepare the data that is to be shown in the graph
      *
-     * @param array $nodeData An array of NodeStats
+     * @param NodeStats[] $nodeData An array of NodeStats
      * @return pData
      */
     private function prepareData($nodeData)
@@ -121,7 +119,7 @@ class Graph
         }
         foreach ($nodeData as $nodeStat) {
             $clientPoints[] = $nodeStat->getClients();
-            $timestamp = $nodeStat->getDataTimestamp()->getTimestamp()->getTimestamp();
+            $timestamp = $nodeStat->getDataTimestamp()->getTimestamp()->setTimezone(new DateTimeZone('Europe/Berlin'))->format('D H:i');
             $labelPoints[] = $timestamp;
         }
 
@@ -138,7 +136,6 @@ class Graph
          */
         $data->setAbscissa('Timestamp');
         $data->setAbscissaName('Time');
-        $data->setXAxisDisplay(AXIS_FORMAT_TIME, 'D H:i');
 
         return $data;
     }
@@ -210,8 +207,11 @@ class Graph
         ]);
 
 
+        $dateTime = new DateTime();
+        $dateTime->setTimezone(new DateTimeZone('UTC'));
+
         $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 35, "Last valid data: " . $lastTimestamp->format('d.m.Y H:i:s'), array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
-        $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 50, "Image generated: " . date('d.m.Y H:i:s'), array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
+        $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 50, "Image generated: " . $dateTime->format('d.m.Y H:i:s'), array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
         $image->drawText(Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 40, 'Node: ' . $nodeName, array('FontSize' => 10, 'Align' => TEXT_ALIGN_BOTTOMLEFT));
 
         return $image;

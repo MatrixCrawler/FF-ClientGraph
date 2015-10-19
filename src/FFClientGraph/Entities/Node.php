@@ -70,7 +70,7 @@ class Node
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getName()
     {
@@ -78,7 +78,7 @@ class Node
     }
 
     /**
-     * @param mixed $name
+     * @param string $name
      */
     public function setName($name)
     {

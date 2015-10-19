@@ -10,6 +10,7 @@ namespace FFClientGraph\JSON;
 
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\Util\Util;
@@ -98,7 +99,7 @@ class JSON
 
         $isToOld = $lastRefreshPlusNMinutes > $lastRemoteRefresh;
         $this->logger->addDebug('Is to old? ' . $isToOld, [get_class()]);
-        return ($isToOld);
+        return (!$isToOld);
     }
 
     /**
@@ -117,10 +118,10 @@ class JSON
     /**
      * Function to fetch JSON Data from a remote server
      *
-     * @param bool $retry Whether this is the second try or not
+     * @param int $retry
      * @return null|String
      */
-    private function getJSONFromRemote($retry = false)
+    private function getJSONFromRemote($retry = 0)
     {
         $this->logger->addDebug('Trying to get JSON from remote. ' . $this->jsonSource, [get_class()]);
         $json = null;
@@ -130,10 +131,11 @@ class JSON
 
         if (!$json) {
             $this->logger->addError('There was an error fetching the JSON source from ' . $this->jsonSource, [get_class()]);
-            if (!$retry) {
-                $this->logger->addError('Retrying once in 10 seconds', [get_class()]);
+            if ($retry < Config::MAX_RETRIES) {
+                $retry++;
+                $this->logger->addError('Retry #' . $retry . ' in 10 seconds', [get_class()]);
                 sleep(10);
-                return $this->getJSONFromRemote(true);
+                return $this->getJSONFromRemote($retry);
             } else {
                 $this->logger->addError('Giving up', [get_class()]);
             }
@@ -141,10 +143,11 @@ class JSON
             $decodedJSON = json_decode($json, true);
             if (!$decodedJSON) {
                 $this->logger->addError('The fetched JSON seems to be invalid.', [get_class()]);
-                if (!$retry) {
-                    $this->logger->addError('Retrying once in 10 seconds', [get_class()]);
+                if ($retry < Config::MAX_RETRIES) {
+                    $retry++;
+                    $this->logger->addError('Retry #' . $retry . ' in 10 seconds', [get_class()]);
                     sleep(10);
-                    return $this->getJSONFromRemote(true);
+                    return $this->getJSONFromRemote($retry);
                 } else {
                     $this->logger->addError('Giving up', [get_class()]);
                 }
@@ -158,6 +161,7 @@ class JSON
                 $this->logger->addError('There was an error saving the nodes file to the cache', [get_class()]);
             } else {
                 $lastUpdateTimestamp = new DateTime();
+                $lastUpdateTimestamp->setTimezone(new DateTimeZone('UTC'));
                 file_put_contents(Constants::LAST_UPDATE_FILE, $lastUpdateTimestamp->format('c'));
             }
 
