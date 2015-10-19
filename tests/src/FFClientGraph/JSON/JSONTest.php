@@ -17,9 +17,9 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 class JSONTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var Path to local JSON for testing
+     * @var string Path to local JSON for testing
      */
-    private static $PATH_TO_LOCAL_JSON = PATH_TO_LOCAL_JSON;
+    private static $PATH_TO_LOCAL_JSON;
 
     /**
      * @var int
