@@ -83,4 +83,16 @@ class FFClientGraph
         $graph->createAllGraphs();
     }
 
+    private function testDBVersion() {
+        $version = '0.0.0';
+        if (file_exists(Config::CACHE_FOLDER.'/dbVersion')) {
+            $version = file_get_contents(Config::CACHE_FOLDER.'/dbVersion');
+        }
+        if (version_compare(Constants::DB_SCHEMA_VERSION, $version) > 0){
+            $db = new DB($this->logLevel);
+            $db->updateSchema();
+            file_put_contents(Config::CACHE_FOLDER.'/dbVersion', Constants::DB_SCHEMA_VERSION);
+        }
+    }
+
 }

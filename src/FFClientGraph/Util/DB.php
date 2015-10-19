@@ -12,6 +12,7 @@ use DateInterval;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 use Exception;
 use FFClientGraph\Config\Config;
@@ -386,5 +387,17 @@ class DB
             $this->entityManager->remove($nodeStat);
         }
         $this->entityManager->flush();
+    }
+
+    /**
+     * Update the database schema if needed
+     */
+    public function updateSchema() {
+        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\Node');
+        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
+        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\DataTimestamp');
+
+        $schemaTool = new SchemaTool($this->entityManager);
+        $schemaTool->updateSchema($classes);
     }
 }

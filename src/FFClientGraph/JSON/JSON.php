@@ -91,8 +91,8 @@ class JSON
             return true;
         }
 
-        $this->logger->addDebug('Adding ' . Config::CACHE_AGE . ' Minutes to the lastRefresh DateTime.', [get_class()]);
-        $lastRefreshPlusNMinutes = $lastRefresh->add(new DateInterval('PT' . Config::CACHE_AGE . 'M'));
+        $this->logger->addDebug('Adding ' . Config::CACHETIME_NODE_LIST . ' Minutes to the lastRefresh DateTime.', [get_class()]);
+        $lastRefreshPlusNMinutes = $lastRefresh->add(new DateInterval('PT' . Config::CACHETIME_NODE_LIST . 'M'));
         $this->logger->addDebug('Result: ' . $lastRefreshPlusNMinutes->format('c'), [get_class()]);
         $this->logger->addDebug('Result Remote: ' . $lastRemoteRefresh->format('c'), [get_class()]);
 

@@ -21,7 +21,7 @@ if (isset($_GET['client'])) {
          */
         $fileStats = stat($filename);
         $currentUnixTime = time();
-        if ($fileStats[9] < ($currentUnixTime - (Config::CACHE_AGE * 60))) {
+        if ($fileStats[9] < ($currentUnixTime - (Config::CACHETIME_IMAGE * 60))) {
             $graph = new Graph();
             $graph->createGraph($_GET['client']);
         }

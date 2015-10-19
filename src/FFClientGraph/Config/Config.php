@@ -30,7 +30,7 @@ class Config
     /**
      * Path to the node JSON
      */
-    const DATA_PATH = 'http://map.fichtenfunk.freifunk.ruhr/JSON';
+    const DATA_PATH = 'http://map.fichtenfunk.freifunk.ruhr/json';
 
     /**
      * Path where the DB is to be stored (if you are using sqlite)
@@ -77,5 +77,11 @@ class Config
      * The maximum age of the cache file in minutes
      * The script will try to fetch a new nodes.JSON from remote when the cached file is older than that
      */
-    const CACHE_AGE = 5;
+    const CACHETIME_NODE_LIST = 1;
+
+    /**
+     * The maximum age of the cached graph image.
+     * If it is older than the given minutes it will be generated.
+     */
+    const CACHETIME_IMAGE = 5;
 }
