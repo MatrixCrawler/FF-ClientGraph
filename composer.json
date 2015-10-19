@@ -1,0 +1,24 @@
+{
+  "name": "MatrixCrawler/FF-ClientGraph",
+  "description": "Tool to create graphical overview over client history of FF Nodes",
+  "minimum-stability": "dev",
+  "license": "MIT",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Johannes Brunswicker",
+      "email": "matrixcrawler@matrixcrawler.net"
+    }
+  ],
+  "require": {
+    "phpunit/phpunit": "4.8.14",
+    "monolog/monolog": "1.17.1",
+    "doctrine/orm": "2.4.0-RC2",
+    "szymach/c-pchart": "1.1.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "FFClientGraph\\": "src/FFClientGraph"
+    }
+  }
+}

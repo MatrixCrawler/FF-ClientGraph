@@ -1,0 +1,487 @@
+{
+  "timestamp": "2015-10-12T12:41:49",
+  "nodes": {
+    "68725120d3ed": {
+      "nodeinfo": {
+        "network": {
+          "mesh_interfaces": [
+            "6a:75:52:20:d3:ed"
+          ],
+          "mac": "68:72:51:20:d3:ed",
+          "mesh": {
+            "bat0": {
+              "interfaces": {
+                "wireless": [
+                  "6a:75:52:20:d3:ed"
+                ]
+              }
+            }
+          },
+          "addresses": [
+            "2a03:2260:50:12:6a72:51ff:fe20:d3ed",
+            "fe80:0:0:0:6a72:51ff:fe20:d3ed"
+          ]
+        },
+        "hostname": "FF-Is-Heimatversorger-060",
+        "system": {
+          "site_code": "ffis"
+        },
+        "hardware": {
+          "model": "Ubiquiti Bullet M",
+          "nproc": 1
+        },
+        "node_id": "68725120d3ed",
+        "location": {
+          "latitude": 51.37435,
+          "longitude": 7.69723
+        },
+        "owner": {
+          "contact": "info@freifunk-iserlohn.de"
+        },
+        "software": {
+          "batman-adv": {
+            "compat": 15,
+            "version": "2015.0"
+          },
+          "firmware": {
+            "release": "15.09",
+            "base": "gluon-v2015.1.2"
+          },
+          "autoupdater": {
+            "enabled": true,
+            "branch": "stable"
+          },
+          "fastd": {
+            "version": "v17",
+            "enabled": false
+          }
+        }
+      },
+      "statistics": {
+        "uptime": 1174402.9,
+        "memory_usage": 0.8072072072072072,
+        "clients": 26,
+        "rootfs_usage": 0.072916666666667,
+        "loadavg": 1.66,
+        "traffic": {
+          "forward": {
+            "packets": 1462463,
+            "bytes": 361497012
+          },
+          "rx": {
+            "packets": 88252975,
+            "bytes": 28439067065
+          },
+          "mgmt_tx": {
+            "packets": 9348237,
+            "bytes": 2311784230
+          },
+          "tx": {
+            "bytes": 3656795468,
+            "packets": 22777966,
+            "dropped": 87128
+          },
+          "mgmt_rx": {
+            "packets": 45860893,
+            "bytes": 11268869391
+          }
+        },
+        "gateway": "02:ee:ef:ca:fe:3a"
+      },
+      "flags": {
+        "gateway": false,
+        "online": true
+      },
+      "lastseen": "2015-10-12T12:41:49",
+      "firstseen": "2015-09-30T19:10:11"
+    },
+    "14cc20cd0f30": {
+      "nodeinfo": {
+        "network": {
+          "mesh_interfaces": [
+            "16:d0:20:cd:0f:30",
+            "16:cf:21:cd:0f:30",
+            "16:cd:20:cd:0f:30"
+          ],
+          "mac": "14:cc:20:cd:0f:30",
+          "mesh": {
+            "bat0": {
+              "interfaces": {
+                "tunnel": [
+                  "16:d0:20:cd:0f:30"
+                ],
+                "wireless": [
+                  "16:cf:21:cd:0f:30"
+                ],
+                "other": [
+                  "16:cd:20:cd:0f:30"
+                ]
+              }
+            }
+          },
+          "addresses": [
+            "fe80:0:0:0:16cc:20ff:fecd:f30",
+            "2a03:2260:50:12:16cc:20ff:fecd:f30"
+          ]
+        },
+        "hostname": "FF-GM-Berlitzstr-01-up",
+        "system": {
+          "site_code": "ffsi"
+        },
+        "hardware": {
+          "model": "TP-Link TL-WR1043N/ND v2",
+          "nproc": 1
+        },
+        "node_id": "14cc20cd0f30",
+        "location": {
+          "latitude": 51.0223138,
+          "longitude": 7.5307148
+        },
+        "software": {
+          "batman-adv": {
+            "compat": 15,
+            "version": "2015.0"
+          },
+          "firmware": {
+            "release": "15.09",
+            "base": "gluon-v2015.1.2"
+          },
+          "fastd": {
+            "version": "v17",
+            "enabled": true
+          },
+          "autoupdater": {
+            "enabled": true,
+            "branch": "stable"
+          }
+        }
+      },
+      "statistics": {
+        "uptime": 2034395.67,
+        "memory_usage": 0.4814500880224294,
+        "clients": 31,
+        "rootfs_usage": 0.065068493150685,
+        "loadavg": 0.43,
+        "traffic": {
+          "forward": {
+            "packets": 693409723,
+            "bytes": 413495016610
+          },
+          "rx": {
+            "packets": 369004755,
+            "bytes": 262137556079
+          },
+          "mgmt_tx": {
+            "packets": 60839638,
+            "bytes": 17852100304
+          },
+          "tx": {
+            "bytes": 35128237585,
+            "packets": 234630203,
+            "dropped": 96273
+          },
+          "mgmt_rx": {
+            "packets": 71006196,
+            "bytes": 10962778212
+          }
+        },
+        "gateway": "02:ee:ef:ca:fe:3a"
+      },
+      "flags": {
+        "gateway": false,
+        "online": true
+      },
+      "lastseen": "2015-10-12T12:41:49",
+      "firstseen": "2015-09-30T19:10:11"
+    },
+    "60e327246148": {
+      "nodeinfo": {
+        "network": {
+          "mesh_interfaces": [
+            "62:e7:27:24:61:48",
+            "62:e6:28:24:61:48"
+          ],
+          "mac": "60:e3:27:24:61:48",
+          "mesh": {
+            "bat0": {
+              "interfaces": {
+                "tunnel": [
+                  "62:e7:27:24:61:48"
+                ],
+                "wireless": [
+                  "62:e6:28:24:61:48"
+                ]
+              }
+            }
+          },
+          "addresses": [
+            "fe80:0:0:0:62e3:27ff:fe24:6148",
+            "2a03:2260:50:12:62e3:27ff:fe24:6148"
+          ]
+        },
+        "hostname": "FF-LUED-Sternplatz1",
+        "system": {
+          "site_code": "ffls"
+        },
+        "hardware": {
+          "model": "TP-Link CPE210 v1.0",
+          "nproc": 1
+        },
+        "node_id": "60e327246148",
+        "location": {
+          "latitude": 51.216583,
+          "longitude": 7.629082
+        },
+        "software": {
+          "batman-adv": {
+            "compat": 15,
+            "version": "2015.0"
+          },
+          "autoupdater": {
+            "enabled": true,
+            "branch": "stable"
+          },
+          "firmware": {
+            "release": "15.09",
+            "base": "gluon-v2015.1.2"
+          },
+          "fastd": {
+            "version": "v17",
+            "enabled": true
+          }
+        }
+      },
+      "statistics": {
+        "uptime": 5353.56,
+        "memory_usage": 0.46104192475712324,
+        "clients": 33,
+        "rootfs_usage": 0.074795081967213,
+        "loadavg": 0.59,
+        "traffic": {
+          "forward": {
+            "packets": 14,
+            "bytes": 1232
+          },
+          "rx": {
+            "packets": 2413000,
+            "bytes": 2652516050
+          },
+          "mgmt_tx": {
+            "packets": 102207,
+            "bytes": 33275754
+          },
+          "tx": {
+            "bytes": 150153981,
+            "packets": 1656482,
+            "dropped": 281
+          },
+          "mgmt_rx": {
+            "packets": 211448,
+            "bytes": 19301136
+          }
+        },
+        "gateway": "02:ee:ef:ca:fe:3a"
+      },
+      "flags": {
+        "gateway": false,
+        "online": true
+      },
+      "lastseen": "2015-10-12T12:41:49",
+      "firstseen": "2015-10-09T10:36:16"
+    },
+    "c46e1ff632c8": {
+      "nodeinfo": {
+        "network": {
+          "mesh_interfaces": [
+            "c6:72:1f:f6:32:c8",
+            "c6:71:20:f6:32:c8"
+          ],
+          "mac": "c4:6e:1f:f6:32:c8",
+          "mesh": {
+            "bat0": {
+              "interfaces": {
+                "tunnel": [
+                  "c6:72:1f:f6:32:c8"
+                ],
+                "wireless": [
+                  "c6:71:20:f6:32:c8"
+                ]
+              }
+            }
+          },
+          "addresses": [
+            "fe80:0:0:0:c66e:1fff:fef6:32c8",
+            "2a03:2260:50:12:c66e:1fff:fef6:32c8"
+          ]
+        },
+        "hostname": "FF-AL-DS-Cappuccino",
+        "system": {
+          "site_code": "ffal"
+        },
+        "hardware": {
+          "model": "TP-Link TL-WR841N/ND v9",
+          "nproc": 1
+        },
+        "node_id": "c46e1ff632c8",
+        "location": {
+          "latitude": 51.296943,
+          "longitude": 7.673662
+        },
+        "owner": {
+          "contact": "info@freifunk-altena.de"
+        },
+        "software": {
+          "batman-adv": {
+            "compat": 15,
+            "version": "2015.0"
+          },
+          "firmware": {
+            "release": "15.09",
+            "base": "gluon-v2015.1.2"
+          },
+          "autoupdater": {
+            "enabled": true,
+            "branch": "stable"
+          },
+          "fastd": {
+            "version": "v17",
+            "enabled": true
+          }
+        }
+      },
+      "statistics": {
+        "uptime": 1142261.36,
+        "memory_usage": 0.8066528066528067,
+        "clients": 4,
+        "rootfs_usage": 0.41666666666667,
+        "loadavg": 0.15,
+        "traffic": {
+          "forward": {
+            "packets": 63915,
+            "bytes": 13417001
+          },
+          "rx": {
+            "packets": 71847139,
+            "bytes": 12792288018
+          },
+          "mgmt_tx": {
+            "packets": 23027523,
+            "bytes": 7200396338
+          },
+          "tx": {
+            "bytes": 1135332516,
+            "packets": 7099172,
+            "dropped": 11601
+          },
+          "mgmt_rx": {
+            "packets": 35768300,
+            "bytes": 3989990004
+          }
+        },
+        "gateway": "02:ee:ef:ca:fe:3a"
+      },
+      "flags": {
+        "gateway": false,
+        "online": true
+      },
+      "lastseen": "2015-10-12T12:41:49",
+      "firstseen": "2015-09-30T19:10:11"
+    },
+    "30b5c25285c6": {
+      "nodeinfo": {
+        "network": {
+          "mesh_interfaces": [
+            "32:b8:c3:52:85:c6",
+            "32:b6:c2:52:85:c6"
+          ],
+          "mac": "30:b5:c2:52:85:c6",
+          "mesh": {
+            "bat0": {
+              "interfaces": {
+                "wireless": [
+                  "32:b8:c3:52:85:c6"
+                ],
+                "other": [
+                  "32:b6:c2:52:85:c6"
+                ]
+              }
+            }
+          },
+          "addresses": [
+            "fe80:0:0:0:32b5:c2ff:fe52:85c6",
+            "2a03:2260:50:12:32b5:c2ff:fe52:85c6"
+          ]
+        },
+        "hostname": "FF-AL-FKS-Asia-Wok",
+        "system": {
+          "site_code": "ffal"
+        },
+        "hardware": {
+          "model": "TP-Link TL-WR841N/ND v9",
+          "nproc": 1
+        },
+        "node_id": "30b5c25285c6",
+        "location": {
+          "latitude": 51.294511,
+          "longitude": 7.673375
+        },
+        "software": {
+          "batman-adv": {
+            "compat": 15,
+            "version": "2015.0"
+          },
+          "firmware": {
+            "release": "15.09",
+            "base": "gluon-v2015.1.2"
+          },
+          "autoupdater": {
+            "enabled": true,
+            "branch": "stable"
+          },
+          "fastd": {
+            "version": "v17",
+            "enabled": false
+          }
+        }
+      },
+      "statistics": {
+        "uptime": 2037084.02,
+        "memory_usage": 0.8521136521136521,
+        "clients": 4,
+        "rootfs_usage": 0.41666666666667,
+        "loadavg": 0,
+        "traffic": {
+          "forward": {
+            "packets": 1982476,
+            "bytes": 1099876406
+          },
+          "rx": {
+            "packets": 147885479,
+            "bytes": 51944434037
+          },
+          "mgmt_tx": {
+            "packets": 42593870,
+            "bytes": 10819889168
+          },
+          "tx": {
+            "bytes": 3359638609,
+            "packets": 29848724,
+            "dropped": 16626
+          },
+          "mgmt_rx": {
+            "packets": 42447521,
+            "bytes": 11553055279
+          }
+        },
+        "gateway": "02:ee:ef:ca:fe:3a"
+      },
+      "flags": {
+        "gateway": false,
+        "online": true
+      },
+      "lastseen": "2015-10-12T12:41:49",
+      "firstseen": "2015-09-30T19:10:11"
+    }
+  },
+  "version": 1
+}

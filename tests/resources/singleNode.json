@@ -1,0 +1,94 @@
+{
+  "nodeinfo": {
+    "network": {
+      "mesh_interfaces": [
+        "6a:75:52:20:d3:ed"
+      ],
+      "mac": "68:72:51:20:d3:ed",
+      "mesh": {
+        "bat0": {
+          "interfaces": {
+            "wireless": [
+              "6a:75:52:20:d3:ed"
+            ]
+          }
+        }
+      },
+      "addresses": [
+        "2a03:2260:50:12:6a72:51ff:fe20:d3ed",
+        "fe80:0:0:0:6a72:51ff:fe20:d3ed"
+      ]
+    },
+    "hostname": "FF-Is-Heimatversorger-060",
+    "system": {
+      "site_code": "ffis"
+    },
+    "hardware": {
+      "model": "Ubiquiti Bullet M",
+      "nproc": 1
+    },
+    "node_id": "68725120d3ed",
+    "location": {
+      "latitude": 51.37435,
+      "longitude": 7.69723
+    },
+    "owner": {
+      "contact": "info@freifunk-iserlohn.de"
+    },
+    "software": {
+      "batman-adv": {
+        "compat": 15,
+        "version": "2015.0"
+      },
+      "firmware": {
+        "release": "15.09",
+        "base": "gluon-v2015.1.2"
+      },
+      "autoupdater": {
+        "enabled": true,
+        "branch": "stable"
+      },
+      "fastd": {
+        "version": "v17",
+        "enabled": false
+      }
+    }
+  },
+  "statistics": {
+    "uptime": 1174402.9,
+    "memory_usage": 0.8072072072072072,
+    "clients": 26,
+    "rootfs_usage": 0.072916666666667,
+    "loadavg": 1.66,
+    "traffic": {
+      "forward": {
+        "packets": 1462463,
+        "bytes": 361497012
+      },
+      "rx": {
+        "packets": 88252975,
+        "bytes": 28439067065
+      },
+      "mgmt_tx": {
+        "packets": 9348237,
+        "bytes": 2311784230
+      },
+      "tx": {
+        "bytes": 3656795468,
+        "packets": 22777966,
+        "dropped": 87128
+      },
+      "mgmt_rx": {
+        "packets": 45860893,
+        "bytes": 11268869391
+      }
+    },
+    "gateway": "02:ee:ef:ca:fe:3a"
+  },
+  "flags": {
+    "gateway": false,
+    "online": true
+  },
+  "lastseen": "2015-10-12T12:41:49",
+  "firstseen": "2015-09-30T19:10:11"
+}
