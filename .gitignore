@@ -43,7 +43,7 @@
 # JIRA plugin
 atlassian-ide-plugin.xml
 
-/src/FFClientGraph/Config/Config.php
+
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
 crashlytics.properties
