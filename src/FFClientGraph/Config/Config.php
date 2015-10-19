@@ -18,7 +18,7 @@ use Monolog\Logger;
  *
  * @package FFClientGraph\config
  */
-class ConfigE
+class Config
 {
 
     /**
@@ -30,7 +30,7 @@ class ConfigE
     /**
      * Path to the node JSON
      */
-    const DATA_PATH = '';
+    const DATA_PATH = 'http://map.fichtenfunk.freifunk.ruhr/JSON';
 
     /**
      * Path where the DB is to be stored (if you are using sqlite)
