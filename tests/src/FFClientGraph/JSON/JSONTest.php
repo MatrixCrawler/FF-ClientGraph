@@ -16,17 +16,24 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 class JSONTest extends PHPUnit_Framework_TestCase
 {
-
-    const PATH_TO_LOCAL_JSON = __DIR__ . '/../../../resources/test_small.JSON';
+    /**
+     * @var Path to local JSON for testing
+     */
+    private static $PATH_TO_LOCAL_JSON = PATH_TO_LOCAL_JSON;
 
     /**
      * @var int
      */
     private $logLevel = Logger::ALERT;
 
+    public static function setUpBeforeClass()
+    {
+        self::$PATH_TO_LOCAL_JSON = __DIR__ . '/../../../resources/test_small.JSON';
+    }
+
     public function testGetJSONFromLocalIsNotNull()
     {
-        $json = new JSON(self::PATH_TO_LOCAL_JSON, $this->logLevel);
+        $json = new JSON(self::$PATH_TO_LOCAL_JSON, $this->logLevel);
         $result = $json->getJSON();
 
         self::assertNotNull($result);
@@ -49,7 +56,7 @@ class JSONTest extends PHPUnit_Framework_TestCase
 
     public function testGetJSONAsArrayFromLocalIsValidArray()
     {
-        $json = new JSON(self::PATH_TO_LOCAL_JSON, $this->logLevel);
+        $json = new JSON(self::$PATH_TO_LOCAL_JSON, $this->logLevel);
         $result = $json->getJSONAsArray();
 
         self::assertArrayHasKey('timestamp', $result);

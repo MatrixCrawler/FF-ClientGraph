@@ -6,7 +6,7 @@
  * Time: 09:18
  */
 
-namespace FFClientGraph\util;
+namespace FFClientGraph\Util;
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 require_once __DIR__ . '/../TestUtils.php';
@@ -17,7 +17,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
-use FFClientGraph\config\Config;
+use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\TestUtils;
 use InvalidArgumentException;

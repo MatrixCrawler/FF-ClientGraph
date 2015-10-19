@@ -6,7 +6,7 @@
  * Time: 15:44
  */
 
-namespace FFClientGraph\util;
+namespace FFClientGraph\Util;
 
 use DateTime;
 use FFClientGraph\Config\Constants;
