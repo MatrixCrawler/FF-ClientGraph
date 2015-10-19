@@ -88,6 +88,8 @@ class Graph
             $nodeName = $nodeData[0]->getNode()->getName();
         }
 
+        $this->logger->addDebug("Nodename :" . $nodeName, [get_class()]);
+
         $lastTimestamp = $db->getLastTimestamp($nodeID);
 
         $numberOfStamps = $db->getNumberOfTimestamps();
