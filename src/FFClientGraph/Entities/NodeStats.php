@@ -1,20 +1,7 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes Brunswicker
- * Date: 13.10.2015
- * Time: 15:25
- */
 
 namespace FFClientGraph\Entities;
 
-
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\JoinColumn;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\Table;
 
 /**
  * @Entity
@@ -58,7 +45,7 @@ class NodeStats
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getClients()
     {
@@ -66,7 +53,7 @@ class NodeStats
     }
 
     /**
-     * @param mixed $clients
+     * @param int $clients
      */
     public function setClients($clients)
     {
@@ -104,7 +91,6 @@ class NodeStats
     {
         $this->dataTimestamp = $dataTimestamp;
     }
-
 
 
 }

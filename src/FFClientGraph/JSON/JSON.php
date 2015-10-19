@@ -10,6 +10,7 @@ namespace FFClientGraph\JSON;
 
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\Util\Util;
@@ -98,7 +99,7 @@ class JSON
 
         $isToOld = $lastRefreshPlusNMinutes > $lastRemoteRefresh;
         $this->logger->addDebug('Is to old? ' . $isToOld, [get_class()]);
-        return ($isToOld);
+        return (!$isToOld);
     }
 
     /**
@@ -132,7 +133,7 @@ class JSON
             $this->logger->addError('There was an error fetching the JSON source from ' . $this->jsonSource, [get_class()]);
             if ($retry < Config::MAX_RETRIES) {
                 $retry++;
-                $this->logger->addError('Retrying once in 10 seconds', [get_class()]);
+                $this->logger->addError('Retry #' . $retry . ' in 10 seconds', [get_class()]);
                 sleep(10);
                 return $this->getJSONFromRemote($retry);
             } else {
@@ -144,7 +145,7 @@ class JSON
                 $this->logger->addError('The fetched JSON seems to be invalid.', [get_class()]);
                 if ($retry < Config::MAX_RETRIES) {
                     $retry++;
-                    $this->logger->addError('Retrying in 10 seconds', [get_class()]);
+                    $this->logger->addError('Retry #' . $retry . ' in 10 seconds', [get_class()]);
                     sleep(10);
                     return $this->getJSONFromRemote($retry);
                 } else {
@@ -160,6 +161,7 @@ class JSON
                 $this->logger->addError('There was an error saving the nodes file to the cache', [get_class()]);
             } else {
                 $lastUpdateTimestamp = new DateTime();
+                $lastUpdateTimestamp->setTimezone(new DateTimeZone('UTC'));
                 file_put_contents(Constants::LAST_UPDATE_FILE, $lastUpdateTimestamp->format('c'));
             }
 

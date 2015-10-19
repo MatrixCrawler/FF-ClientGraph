@@ -1,12 +1,6 @@
 <?php
 error_reporting(0);
 ob_start();
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes Brunswicker
- * Date: 16.10.2015
- * Time: 11:37
- */
 
 use FFClientGraph\Config\Config;
 use FFClientGraph\Util\Graph;
