@@ -33,7 +33,7 @@ class UtilTest extends PHPUnit_Framework_TestCase
     }
 
     public function testGetLastRemoteJSONUpdate_Local() {
-        $result = Util::getLastRemoteJSONUpdate(__DIR__.'/../../../resources/test.JSON');
+        $result = Util::getLastRemoteJSONUpdate(__DIR__.'/../../../resources/test.json');
 
         self::assertNotNull($result);
         self::assertInstanceOf('DateTime', $result);
