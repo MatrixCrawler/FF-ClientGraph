@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManager;
 use Exception;
 use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
+use FFClientGraph\Entities\NodeStats;
 use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -105,7 +106,7 @@ class Graph
     /**
      * Function to prepare the data that is to be shown in the graph
      *
-     * @param array $nodeData An array of NodeStats
+     * @param NodeStats[] $nodeData An array of NodeStats
      * @return pData
      */
     private function prepareData($nodeData)

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes Brunswicker
- * Date: 15.10.2015
- * Time: 09:18
- */
 
 namespace FFClientGraph\Util;
 
@@ -96,9 +90,9 @@ class GraphTest extends PHPUnit_Framework_TestCase
         $graph->createGraph($nodeID);
         self::assertFileExists(Config::CACHE_FOLDER . '/' . $nodeID . '-clients.png');
 
-        if (file_exists(Config::CACHE_FOLDER . '/' . $nodeID . '-clients.png')) {
-            unlink(Config::CACHE_FOLDER . '/' . $nodeID . '-clients.png');
-        }
+//        if (file_exists(Config::CACHE_FOLDER . '/' . $nodeID . '-clients.png')) {
+//            unlink(Config::CACHE_FOLDER . '/' . $nodeID . '-clients.png');
+//        }
 
     }
 
