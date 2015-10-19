@@ -2,6 +2,14 @@
 
 namespace FFClientGraph\Entities;
 
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\Table;
+
 
 /**
  * @Entity
@@ -24,9 +32,9 @@ class NodeStats
     protected $clients;
 
     /**
-     * @ManyToOne(targetEntity="Node", inversedBy="statData", cascade={"persist"})
+     * @ManyToOne(targetEntity="Node", inversedBy="nodeStats", cascade={"persist"})
      * @JoinColumn(name="node_id", referencedColumnName="nodeId")
-     * @var DataTimestamp
+     * @var Node
      */
     protected $node;
 
@@ -35,6 +43,21 @@ class NodeStats
      * @var DataTimestamp
      */
     protected $dataTimestamp;
+
+    /**
+     * @Column(type="decimal",scale=16,precision=17 )
+     */
+    protected $memoryUsage;
+
+    /**
+     * @Column(type="bigint")
+     */
+    protected $rx_bytes;
+
+    /**
+     * @Column(type="bigint")
+     */
+    protected $tx_bytes;
 
     /**
      * @return mixed

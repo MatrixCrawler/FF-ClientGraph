@@ -11,7 +11,9 @@ namespace FFClientGraph\Entities;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
 
 /**
@@ -28,14 +30,22 @@ class Node
     protected $nodeId;
 
     /**
-     * @Column(type="string", nullable=true)
+     * @OneToOne(targetEntity="NodeInfo", mappedBy="node")
+     * @JoinColumn(name="nodeinfo_id", referencedColumnName="id", nullable=true)
+     * @var NodeInfo
      */
-    protected $name;
+    protected $nodeInfo;
+
+//    /**
+//     * @Column(type="string", nullable=true)
+//     */
+//    protected $name;
 
     /**
      * @OneToMany(targetEntity="NodeStats", mappedBy="node", cascade={"persist","remove"},)
+     * @var NodeStats
      */
-    protected $statData;
+    protected $nodeStats;
 
     /**
      * @return mixed
@@ -56,9 +66,9 @@ class Node
     /**
      * @return mixed
      */
-    public function getStatData()
+    public function getNodeStats()
     {
-        return $this->statData;
+        return $this->nodeStats;
     }
 
     /**
@@ -66,23 +76,23 @@ class Node
      */
     public function addStatData(NodeStats $nodeData)
     {
-        $this->statData[] = $nodeData;
+        $this->nodeStats[] = $nodeData;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
+//    /**
+//     * @return string
+//     */
+//    public function getName()
+//    {
+//        return $this->name;
+//    }
+//
+//    /**
+//     * @param string $name
+//     */
+//    public function setName($name)
+//    {
+//        $this->name = $name;
+//    }
 
 }
