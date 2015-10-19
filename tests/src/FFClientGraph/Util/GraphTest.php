@@ -85,7 +85,7 @@ class GraphTest extends PHPUnit_Framework_TestCase
             unlink(Config::CACHE_FOLDER . '/' . $nodeID . '-clients.png');
         }
 
-        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.JSON'), true);
+        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.json'), true);
         for ($i = 0; $i < 50; $i++) {
             TestUtils::insertNodeData(self::$entityManager, 'blaID', $dt);
             $dt->sub(new DateInterval('PT' . mt_rand(5, 15) . 'M'));

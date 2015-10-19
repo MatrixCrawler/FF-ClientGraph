@@ -6,7 +6,7 @@ Dies ist ein Tool zum Tracken und grafischer Darstellung der Auslastung von Frei
 
 ##Systemvoraussetzungen
 
-* PHP5.5+ (mit GD & Freetype-Support)
+* PHP5.6+ (mit GD & Freetype-Support)
 * PDO Treiber (SQLite oder MySQL)
 
 
