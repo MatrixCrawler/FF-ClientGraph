@@ -3,10 +3,13 @@ error_reporting(0);
 ob_start();
 
 use FFClientGraph\Config\Config;
+use FFClientGraph\Util\DB;
 use FFClientGraph\Util\Graph;
 
 require_once 'vendor/autoload.php';
-if (isset($_GET['client'])) {
+$db = new DB();
+
+if (isset($_GET['client']) && $db->getExistingNode($_GET['client'])) {
     $filename = Config::CACHE_FOLDER . '/' . $_GET['client'] . '-clients.png';
     if (file_exists($filename)) {
         /**
