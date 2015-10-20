@@ -36,14 +36,9 @@ class Node
      */
     protected $nodeInfo;
 
-//    /**
-//     * @Column(type="string", nullable=true)
-//     */
-//    protected $name;
-
     /**
      * @OneToMany(targetEntity="NodeStats", mappedBy="node", cascade={"persist","remove"},)
-     * @var NodeStats
+     * @var NodeStats[]
      */
     protected $nodeStats;
 
@@ -79,20 +74,20 @@ class Node
         $this->nodeStats[] = $nodeData;
     }
 
-//    /**
-//     * @return string
-//     */
-//    public function getName()
-//    {
-//        return $this->name;
-//    }
-//
-//    /**
-//     * @param string $name
-//     */
-//    public function setName($name)
-//    {
-//        $this->name = $name;
-//    }
+    /**
+     * @return NodeInfo
+     */
+    public function getNodeInfo()
+    {
+        return $this->nodeInfo;
+    }
+
+    /**
+     * @param NodeInfo $nodeInfo
+     */
+    public function setNodeInfo($nodeInfo)
+    {
+        $this->nodeInfo = $nodeInfo;
+    }
 
 }

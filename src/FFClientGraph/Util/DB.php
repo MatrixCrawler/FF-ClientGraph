@@ -20,6 +20,7 @@ use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\Entities\DataTimestamp;
 use FFClientGraph\Entities\Node;
+use FFClientGraph\Entities\NodeInfo;
 use FFClientGraph\Entities\NodeStats;
 use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
@@ -144,9 +145,12 @@ class DB
          * If not: Set it
          */
         $node = $this->getNode($nodeId);
-        if (!$node->getName() or $node->getName() === '') {
-            $node->setName($nodeArray['nodeinfo']['hostname']);
-        }
+        //TODO Implement
+        NodeInfo::create($node, $nodeArray['nodeinfo']);
+
+//        if (!$node->getName() or $node->getName() === '') {
+//            $node->setName($nodeArray['nodeinfo']['hostname']);
+//        }
 
         $nodeStatRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
 

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes Brunswicker
- * Date: 13.10.2015
- * Time: 11:36
- */
 
 namespace FFClientGraph\Entities;
 
@@ -38,12 +32,19 @@ class DataTimestamp
     protected $timestamp;
 
     /**
+     * @Column(type="datetime")
+     * @var DateTime
+     */
+    protected $dataTime;
+
+    /**
      * @OneToMany(targetEntity="NodeStats", mappedBy="dataTimestamp", cascade={"persist"})
      */
     protected $statData;
 
     /**
      * @Column(type="string")
+     * @var string
      */
     protected $timezone;
 
@@ -99,7 +100,7 @@ class DataTimestamp
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTimezone()
     {
@@ -107,11 +108,28 @@ class DataTimestamp
     }
 
     /**
-     * @param mixed $timezone
+     * @param string $timezone
      */
     public function setTimezone($timezone)
     {
         $this->timezone = $timezone;
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getDataTime()
+    {
+        $this->dataTime->setTimeZone(new DateTimeZone($this->dataTime));
+        return $this->dataTime;
+    }
+
+    /**
+     * @param DateTime $dataTime
+     */
+    public function setDataTime($dataTime)
+    {
+        $this->dataTime = $dataTime;
     }
 
 
