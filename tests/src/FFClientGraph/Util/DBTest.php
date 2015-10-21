@@ -68,12 +68,12 @@ class DBTest extends PHPUnit_Framework_TestCase
         self::$dateTime = new DateTime();
     }
 
-    public function testLoggerIsNotNull()
-    {
-        $db = new DB(self::$logLevel, self::$entityManager);
-        self::assertNotNull($db->getLogger());
-        unset($db);
-    }
+//    public function testLoggerIsNotNull()
+//    {
+//        $db = new DB(self::$logLevel, self::$entityManager);
+//        self::assertNotNull($db->getLogger());
+//        unset($db);
+//    }
 
     public function testSaveNode()
     {
@@ -82,8 +82,8 @@ class DBTest extends PHPUnit_Framework_TestCase
 
         TestUtils::clearDB(self::$schemaTool, self::$classes);
 
-        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.json'), true);
-        $db->saveSingleNodeData($nodeData);
+        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
+        $db->saveSingleNodeData($nodeData['nodes']['68725120d3ed'], new DateTime($nodeData['timestamp']));
 
         $nodeRepository = self::$entityManager->getRepository('FFClientGraph\Entities\Node');
         $result = $nodeRepository->findBy(['nodeId' => '68725120d3ed']);

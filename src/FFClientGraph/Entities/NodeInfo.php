@@ -25,9 +25,10 @@ class NodeInfo
     protected $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\OneToOne(targetEntity="Node", mappedBy="nodeInfo")
+     * @var Node
      */
-    protected $nodeName;
+    protected $node;
 
     /**
      * @ManyToOne(targetEntity="Hardware", inversedBy="nodeInfo", cascade={"persist"})
@@ -67,27 +68,20 @@ class NodeInfo
     protected $lastseen;
 
     /**
+     * NodeInfo constructor.
+     * @param Node $node
+     */
+    public function __construct(Node $node)
+    {
+        $this->node = $node;
+    }
+
+    /**
      * @return int
      */
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getNodeName()
-    {
-        return $this->nodeName;
-    }
-
-    /**
-     * @param string $nodeName
-     */
-    public function setNodeName($nodeName)
-    {
-        $this->nodeName = $nodeName;
     }
 
     /**
@@ -202,23 +196,44 @@ class NodeInfo
         $this->lastseen = $lastseen;
     }
 
+    /**
+     * @return Node
+     */
+    public function getNode()
+    {
+        return $this->node;
+    }
+
+    /**
+     * @param Node $node
+     */
+    public function setNode($node)
+    {
+        $this->node = $node;
+    }
+
 
     /**
      * Set the NodeInfo
      *
      * @param Node $node
      * @param array $nodeInfoArray
-     * @return NodeInfo|null
+     * @return NodeInfo
      */
     public static function create(Node $node, $nodeInfoArray)
     {
         //TODO Testing
-        if ($node->getNodeInfo() !== null) {
-            //TODO Implement
-            $nodeInfo = new NodeInfo();
-        } else {
-            $nodeInfo = $node->getNodeInfo();
-        }
-        return null;
+        //TODO Implement
+        $nodeInfo = new NodeInfo($node);
+
+        $nodeInfo->setHostname($nodeInfoArray['nodeinfo']['hostname']);
+        $nodeInfo->setFirstseen(new DateTime($nodeInfoArray['firstseen']));
+        $nodeInfo->setLastseen(new DateTime($nodeInfoArray['lastseen']));
+        $nodeInfo->setLatitude(floatval($nodeInfoArray['nodeinfo']['location']['latitude']));
+        $nodeInfo->setLongitude(floatval($nodeInfoArray['nodeinfo']['location']['longitude']));
+        $nodeInfo->setOwner($nodeInfoArray['nodeinfo']['owner']['contact']);
+
+
+        return $nodeInfo;
     }
 }

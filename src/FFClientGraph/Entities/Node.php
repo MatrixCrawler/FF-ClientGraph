@@ -8,6 +8,7 @@
 
 namespace FFClientGraph\Entities;
 
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Id;

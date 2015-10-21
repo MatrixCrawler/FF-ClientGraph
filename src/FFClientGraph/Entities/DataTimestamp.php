@@ -26,21 +26,28 @@ class DataTimestamp
     protected $id;
 
     /**
+     * The timestamp when the data was fetched
+     *
      * @Column(type="datetime")
      * @var DateTime
      */
     protected $timestamp;
 
     /**
-     * @Column(type="datetime")
+     * The timestamp the fetched data was signed with
+     *
+     * @Column(type="datetime", nullable=true)
      * @var DateTime
      */
-    protected $dataTime;
+    protected $dataTimestamp;
 
     /**
+     * The NodeStats associated with this timestamp
+     *
      * @OneToMany(targetEntity="NodeStats", mappedBy="dataTimestamp", cascade={"persist"})
+     * @var NodeStats[]
      */
-    protected $statData;
+    protected $nodeStats;
 
     /**
      * @Column(type="string")
@@ -50,19 +57,21 @@ class DataTimestamp
 
     /**
      * @param DateTimeInterface $timestamp
+     * @param DateTimeInterface $dataTimestamp
      */
-    public function __construct(DateTimeInterface $timestamp)
+    public function __construct(DateTimeInterface $timestamp, DateTimeInterface $dataTimestamp = null)
     {
         $this->timestamp = $timestamp;
+        $this->dataTimestamp = $dataTimestamp;
         $this->timezone = $timestamp->getTimezone()->getName();
     }
 
     /**
      * @return mixed
      */
-    public function getStatData()
+    public function getNodeStats()
     {
-        return $this->statData;
+        return $this->nodeStats;
     }
 
     /**
@@ -70,7 +79,7 @@ class DataTimestamp
      */
     public function addStatData(NodeStats $nodeData)
     {
-        $this->statData[] = $nodeData;
+        $this->nodeStats[] = $nodeData;
     }
 
     /**
@@ -118,18 +127,22 @@ class DataTimestamp
     /**
      * @return DateTime
      */
-    public function getDataTime()
+    public function getDataTimestamp()
     {
-        $this->dataTime->setTimeZone(new DateTimeZone($this->dataTime));
-        return $this->dataTime;
+        $this->dataTimestamp->setTimeZone(new DateTimeZone($this->dataTimestamp));
+        return $this->dataTimestamp;
     }
 
     /**
-     * @param DateTime $dataTime
+     * @param DateTime $dataTimestamp
      */
-    public function setDataTime($dataTime)
+    public function setDataTimestamp($dataTimestamp)
     {
-        $this->dataTime = $dataTime;
+        $this->dataTimestamp = $dataTimestamp;
+    }
+
+    public static function getOrCreate() {
+
     }
 
 

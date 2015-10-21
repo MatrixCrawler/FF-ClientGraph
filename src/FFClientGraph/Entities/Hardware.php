@@ -9,6 +9,7 @@
 namespace FFClientGraph\Entities;
 
 
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
@@ -32,5 +33,63 @@ class Hardware
      * @var NodeInfo
      */
     protected $nodeInfo;
+
+    /**
+     * Hardware constructor.
+     * @param NodeInfo $nodeInfo
+     */
+    public function __construct(NodeInfo $nodeInfo)
+    {
+        $this->nodeInfo = $nodeInfo;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * @param mixed $model
+     */
+    public function setModel($model)
+    {
+        $this->model = $model;
+    }
+
+    /**
+     * @return NodeInfo
+     */
+    public function getNodeInfo()
+    {
+        return $this->nodeInfo;
+    }
+
+    /**
+     * @param NodeInfo $nodeInfo
+     */
+    public function setNodeInfo($nodeInfo)
+    {
+        $this->nodeInfo = $nodeInfo;
+    }
+
+    /**
+     * @param EntityManager $entityManager
+     * @param NodeInfo $nodeInfo
+     * @return Hardware
+     */
+    public static function getOrCreate(EntityManager $entityManager, NodeInfo $nodeInfo)
+    {
+        $hardwareRepo = $entityManager->getRepository('FFClientGraph\Entities\Hardware');
+        $result = $hardwareRepo->findBy(['nodeInfo'=>$nodeInfo]);
+        if ($result) {
+            return $result[0];
+        } else {
+            return new Hardware($nodeInfo);
+        }
+
+    }
 
 }

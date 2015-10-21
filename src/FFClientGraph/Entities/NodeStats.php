@@ -39,7 +39,7 @@ class NodeStats
     protected $node;
 
     /**
-     * @ManyToOne(targetEntity="DataTimestamp", inversedBy="statData", cascade={"persist", "remove"})
+     * @ManyToOne(targetEntity="DataTimestamp", inversedBy="nodeStats", cascade={"persist", "remove"})
      * @var DataTimestamp
      */
     protected $dataTimestamp;
@@ -113,6 +113,20 @@ class NodeStats
     public function setDataTimestamp($dataTimestamp)
     {
         $this->dataTimestamp = $dataTimestamp;
+    }
+
+    /**
+     * @param Node $node
+     * @param array $nodeStats
+     * @return NodeStats|null
+     */
+    public static function create(Node $node, $nodeStats)
+    {
+
+        //TODO Implement
+        //TODO testing
+
+        return null;
     }
 
 
