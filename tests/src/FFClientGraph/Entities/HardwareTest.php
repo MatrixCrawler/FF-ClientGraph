@@ -16,6 +16,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 use FFClientGraph\Config\Constants;
+use FFClientGraph\TestUtils;
 use InvalidArgumentException;
 use Monolog\Logger;
 use PHPUnit_Framework_TestCase;
@@ -51,17 +52,10 @@ class HardwareTest extends PHPUnit_Framework_TestCase
          */
         $ORMConfig = Setup::createAnnotationMetadataConfiguration(array(Constants::ENTITY_PATH), true);
 
-        //TODO Externalize DBConnection Setup and Config
-        $DBConnection = array(
-            'driver' => Constants::DB_DRIVER_SQLITE
-        );
-        $DBConnection['path'] = __DIR__ . '/../../../resources/test.sqlite.db';
-
+        $DBConnection = TestUtils::setUpConnection();
         try {
             self::$entityManager = EntityManager::create($DBConnection, $ORMConfig);
-            self::$classes[] = self::$entityManager->getClassMetadata('FFClientGraph\Entities\Node');
-            self::$classes[] = self::$entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
-            self::$classes[] = self::$entityManager->getClassMetadata('FFClientGraph\Entities\DataTimestamp');
+            self::$classes = TestUtils::setUpClasses(self::$entityManager);
             self::$schemaTool = new SchemaTool(self::$entityManager);
             self::$schemaTool->updateSchema(self::$classes);
         } catch (ORMException $exception) {
@@ -77,6 +71,26 @@ class HardwareTest extends PHPUnit_Framework_TestCase
         $hardware = Hardware::create(new NodeInfo(new Node()), $nodeData['nodes']['68725120d3ed']);
 
         self::assertEquals('Ubiquiti Bullet M', $hardware->getModel());
+    }
+
+    public function testGetOrCreate_createNewIfNotExisting()
+    {
+        /**
+         * Clear database
+         */
+        TestUtils::clearDB(self::$schemaTool, self::$classes);
+        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
+
+        $hardware = Hardware::getOrCreate(self::$entityManager, new NodeInfo(new Node()), $nodeData['nodes']['68725120d3ed']);
+
+        self::assertNotNull($hardware);
+        self::assertInstanceOf('FFClientGraph\Entities\Hardware', $hardware);
+        self::assertEquals('Ubiquiti Bullet M', $hardware->getModel());
+    }
+
+    public function testGetOrCreate_returnExistingIfExistant()
+    {
+        //TODO Implement. Function to insert a complete Dataset into DB
     }
 
     public static function tearDownAfterClass()

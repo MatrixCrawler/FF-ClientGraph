@@ -12,6 +12,7 @@ namespace FFClientGraph;
 use DateTimeInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
+use FFClientGraph\Config\Constants;
 use FFClientGraph\Entities\DataTimestamp;
 use FFClientGraph\Entities\Node;
 use FFClientGraph\Entities\NodeStats;
@@ -73,5 +74,27 @@ class TestUtils
 
         $em->persist($statData);
         $em->flush($statData);
+    }
+
+    public static function setUpClasses(EntityManager $entityManager)
+    {
+        $classes = array();
+
+        $classes[] = $entityManager->getClassMetadata('FFClientGraph\Entities\Node');
+        $classes[] = $entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
+        $classes[] = $entityManager->getClassMetadata('FFClientGraph\Entities\DataTimestamp');
+        $classes[] = $entityManager->getClassMetadata('FFClientGraph\Entities\Hardware');
+        $classes[] = $entityManager->getClassMetadata('FFClientGraph\Entities\NodeInfo');
+
+        return $classes;
+    }
+
+    public static function setUpConnection() {
+        $DBConnection = array(
+            'driver' => Constants::DB_DRIVER_SQLITE
+        );
+        $DBConnection['path'] = __DIR__ . '/../../../resources/test.sqlite.db';
+
+        return $DBConnection;
     }
 }

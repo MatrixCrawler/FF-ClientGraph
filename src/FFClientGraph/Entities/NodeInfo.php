@@ -2,6 +2,7 @@
 namespace FFClientGraph\Entities;
 
 use DateTime;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\GeneratedValue;
@@ -217,9 +218,10 @@ class NodeInfo
      *
      * @param Node $node
      * @param array $nodeInfoArray
+     * @param EntityManager $entityManager
      * @return NodeInfo
      */
-    public static function create(Node $node, $nodeInfoArray)
+    public static function create(Node $node, $nodeInfoArray, EntityManager $entityManager)
     {
         $nodeInfo = new NodeInfo($node);
 
@@ -229,6 +231,8 @@ class NodeInfo
         $nodeInfo->setLatitude(floatval($nodeInfoArray['nodeinfo']['location']['latitude']));
         $nodeInfo->setLongitude(floatval($nodeInfoArray['nodeinfo']['location']['longitude']));
         $nodeInfo->setOwner($nodeInfoArray['nodeinfo']['owner']['contact']);
+
+        $nodeInfo->setHardware(Hardware::getOrCreate($entityManager, $nodeInfo, $nodeInfoArray));
 
         return $nodeInfo;
     }

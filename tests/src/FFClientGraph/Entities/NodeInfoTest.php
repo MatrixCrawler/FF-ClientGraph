@@ -17,6 +17,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 use FFClientGraph\Config\Constants;
+use FFClientGraph\TestUtils;
 use InvalidArgumentException;
 use Monolog\Logger;
 use PHPUnit_Framework_TestCase;
@@ -52,17 +53,10 @@ class NodeInfoTest extends PHPUnit_Framework_TestCase
          */
         $ORMConfig = Setup::createAnnotationMetadataConfiguration(array(Constants::ENTITY_PATH), true);
 
-        //TODO Externalize DBConnection Setup and Config
-        $DBConnection = array(
-            'driver' => Constants::DB_DRIVER_SQLITE
-        );
-        $DBConnection['path'] = __DIR__ . '/../../../resources/test.sqlite.db';
-
+        $DBConnection = TestUtils::setUpConnection();
         try {
             self::$entityManager = EntityManager::create($DBConnection, $ORMConfig);
-            self::$classes[] = self::$entityManager->getClassMetadata('FFClientGraph\Entities\Node');
-            self::$classes[] = self::$entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
-            self::$classes[] = self::$entityManager->getClassMetadata('FFClientGraph\Entities\DataTimestamp');
+            self::$classes = TestUtils::setUpClasses(self::$entityManager);
             self::$schemaTool = new SchemaTool(self::$entityManager);
             self::$schemaTool->updateSchema(self::$classes);
         } catch (ORMException $exception) {
@@ -72,9 +66,10 @@ class NodeInfoTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testCreate() {
+    public function testCreate()
+    {
         $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
-        $nodeInfo = NodeInfo::create(new Node(), $nodeData['nodes']['68725120d3ed']);
+        $nodeInfo = NodeInfo::create(new Node(), $nodeData['nodes']['68725120d3ed'], self::$entityManager);
 
         self::assertEquals('FF-Is-Heimatversorger-060', $nodeInfo->getHostname());
         self::assertEquals(new DateTime('2015-09-30T19:10:11'), $nodeInfo->getFirstseen());
@@ -83,9 +78,9 @@ class NodeInfoTest extends PHPUnit_Framework_TestCase
         self::assertEquals(7.69723, $nodeInfo->getLongitude());
         self::assertEquals('info@freifunk-iserlohn.de', $nodeInfo->getOwner());
 
-//        $hardware = Hardware::getOrCreate(self::$entityManager, $nodeInfo);
-//
-//        assertEquals('', $nodeInfo->getHardware());
+        $hardware = Hardware::getOrCreate(self::$entityManager, $nodeInfo, $nodeData['nodes']['68725120d3ed']);
+
+        self::assertEquals($hardware->getModel(), $nodeInfo->getHardware()->getModel());
     }
 
     public static function tearDownAfterClass()
