@@ -88,7 +88,7 @@ class HardwareTest extends PHPUnit_Framework_TestCase
         self::assertEquals('Ubiquiti Bullet M', $hardware->getModel());
     }
 
-    public function testGetOrCreate_returnExistingIfExistant()
+    public function testGetOrCreate_returnExistingIfExisting()
     {
         //TODO Implement. Function to insert a complete Dataset into DB
     }

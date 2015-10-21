@@ -51,6 +51,7 @@ class TestUtils
      */
     public static function insertNodeData(EntityManager $em, $nodeId, $timestamp)
     {
+        //TODO Adapt to new Scheme
         $nodeRepo = $em->getRepository('FFClientGraph\Entities\Node');
         $result = $nodeRepo->findBy(['nodeId' => $nodeId]);
         if ($result && count($result) >= 1) {
