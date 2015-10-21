@@ -72,7 +72,7 @@ class NodeInfo
      * NodeInfo constructor.
      * @param Node $node
      */
-    public function __construct(Node $node)
+    public function __construct(Node $node = null)
     {
         $this->node = $node;
     }

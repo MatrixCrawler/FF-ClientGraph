@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes Brunswicker
- * Date: 21.10.2015
- * Time: 08:59
- */
 
 namespace FFClientGraph\Entities;
 
@@ -18,16 +12,10 @@ use Doctrine\ORM\Tools\Setup;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\TestUtils;
 use InvalidArgumentException;
-use Monolog\Logger;
 use PHPUnit_Framework_TestCase;
 
 class HardwareTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var int
-     */
-    private static $logLevel = Logger::EMERGENCY;
-
     /**
      * @var array
      */
@@ -81,24 +69,25 @@ class HardwareTest extends PHPUnit_Framework_TestCase
         TestUtils::clearDB(self::$schemaTool, self::$classes);
         $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
 
-        $hardware = Hardware::getOrCreate(self::$entityManager, new NodeInfo(new Node()), $nodeData['nodes']['68725120d3ed']);
+        $nodeInfo = new NodeInfo();
+        $hardware = Hardware::getOrCreate(self::$entityManager, $nodeInfo, $nodeData['nodes']['68725120d3ed']);
 
         self::assertNotNull($hardware);
         self::assertInstanceOf('FFClientGraph\Entities\Hardware', $hardware);
-        self::assertEquals('Ubiquiti Bullet M', $hardware->getModel());
+        self::assertEquals($nodeInfo, $hardware->getNodeInfo());
     }
 
     public function testGetOrCreate_returnExistingIfExisting()
     {
         TestUtils::clearDB(self::$schemaTool, self::$classes);
 
-        TestUtils::insertHardware(self::$entityManager, 'TestHardware');
-        $hardwareRepository = self::$entityManager->getRepository('FFClientGraph\Entities\Hardware');
-        $result = $hardwareRepository->findOneBy(['model' => 'TestHardware']);
+        TestUtils::insertHardware(self::$entityManager, 'Ubiquiti Bullet M');
 
-        self::assertEquals('TestHardware', $result->getModel());
+        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
+        $nodeInfo = new NodeInfo();
+        $hardware = Hardware::getOrCreate(self::$entityManager, $nodeInfo, $nodeData['nodes']['68725120d3ed']);
 
-        //TODO Implement. Function to insert a complete Dataset into DB
+        self::assertNull($hardware->getNodeInfo());
     }
 
     public static function tearDownAfterClass()
