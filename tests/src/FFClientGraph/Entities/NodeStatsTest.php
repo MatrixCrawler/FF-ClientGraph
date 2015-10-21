@@ -1,17 +1,7 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes Brunswicker
- * Date: 21.10.2015
- * Time: 07:53
- */
 
 namespace FFClientGraph\Entities;
 
-require_once __DIR__ . '/../../../../vendor/autoload.php';
-require_once __DIR__ . '/../TestUtils.php';
-
-use DateTime;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -19,10 +9,12 @@ use Doctrine\ORM\Tools\Setup;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\TestUtils;
 use InvalidArgumentException;
-use Monolog\Logger;
 use PHPUnit_Framework_TestCase;
 
-class NodeInfoTest extends PHPUnit_Framework_TestCase
+require_once __DIR__ . '/../../../../vendor/autoload.php';
+require_once __DIR__ . '/../TestUtils.php';
+
+class NodeStatsTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var array
@@ -61,25 +53,24 @@ class NodeInfoTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testCreate()
-    {
+    public function testCreate() {
+
+        TestUtils::clearDB(self::$schemaTool, self::$classes);
         $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
-        $nodeInfo = NodeInfo::create(new Node(), $nodeData['nodes']['68725120d3ed'], self::$entityManager);
+        $node = new Node();
+        $nodeStats = NodeStats::create($node, $nodeData);
 
-        self::assertEquals('FF-Is-Heimatversorger-060', $nodeInfo->getHostname());
-        self::assertEquals(new DateTime('2015-09-30T19:10:11'), $nodeInfo->getFirstseen());
-        self::assertEquals(new DateTime('2015-10-12T12:41:49'), $nodeInfo->getLastseen());
-        self::assertEquals(51.37435, $nodeInfo->getLatitude());
-        self::assertEquals(7.69723, $nodeInfo->getLongitude());
-        self::assertEquals('info@freifunk-iserlohn.de', $nodeInfo->getOwner());
+        self::assertEquals($node, $nodeStats->getNode());
+        self::assertEquals(26, $nodeStats->getClients());
+        self::assertEquals(0.8072072072072072, $nodeStats->getMemoryUsage());
+        self::assertEquals(28439067065, $nodeStats->getRxBytes());
+        self::assertEquals(3656795468, $nodeStats->getTxBytes());
 
-        $hardware = Hardware::getOrCreate(self::$entityManager, $nodeInfo, $nodeData['nodes']['68725120d3ed']);
-
-        self::assertEquals($hardware->getModel(), $nodeInfo->getHardware()->getModel());
     }
 
     public static function tearDownAfterClass()
     {
         self::$schemaTool->dropDatabase();
     }
+
 }

@@ -46,16 +46,19 @@ class NodeStats
 
     /**
      * @Column(type="decimal",scale=16,precision=17 )
+     * @var float
      */
     protected $memoryUsage;
 
     /**
      * @Column(type="bigint")
+     * @var int
      */
     protected $rx_bytes;
 
     /**
      * @Column(type="bigint")
+     * @var int
      */
     protected $tx_bytes;
 
@@ -116,17 +119,72 @@ class NodeStats
     }
 
     /**
-     * @param Node $node
-     * @param array $nodeStats
-     * @return NodeStats|null
+     * @return mixed
      */
-    public static function create(Node $node, $nodeStats)
+    public function getMemoryUsage()
+    {
+        return $this->memoryUsage;
+    }
+
+    /**
+     * @param mixed $memoryUsage
+     */
+    public function setMemoryUsage($memoryUsage)
+    {
+        $this->memoryUsage = $memoryUsage;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRxBytes()
+    {
+        return $this->rx_bytes;
+    }
+
+    /**
+     * @param mixed $rx_bytes
+     */
+    public function setRxBytes($rx_bytes)
+    {
+        $this->rx_bytes = $rx_bytes;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTxBytes()
+    {
+        return $this->tx_bytes;
+    }
+
+    /**
+     * @param mixed $tx_bytes
+     */
+    public function setTxBytes($tx_bytes)
+    {
+        $this->tx_bytes = $tx_bytes;
+    }
+
+
+    /**
+     *
+     * @param Node $node
+     * @param $nodeDataArray
+     * @return NodeStats
+     */
+    public static function create(Node $node, $nodeDataArray)
     {
 
         //TODO Implement
-        //TODO testing
+        $nodeStats = new NodeStats();
+        $nodeStats->setNode($node);
+        $nodeStats->setMemoryUsage($nodeDataArray['statistics']['memory_usage']);
+        $nodeStats->setClients($nodeDataArray['statistics']['clients']);
+        $nodeStats->setRxBytes($nodeDataArray['statistics']['traffic']['rx']['bytes']);
+        $nodeStats->setTxBytes($nodeDataArray['statistics']['traffic']['tx']['bytes']);
 
-        return null;
+        return $nodeStats;
     }
 
 

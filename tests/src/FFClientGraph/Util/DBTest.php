@@ -55,9 +55,7 @@ class DBTest extends PHPUnit_Framework_TestCase
 
         try {
             self::$entityManager = EntityManager::create($DBConnection, $ORMConfig);
-            self::$classes[] = self::$entityManager->getClassMetadata('FFClientGraph\Entities\Node');
-            self::$classes[] = self::$entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
-            self::$classes[] = self::$entityManager->getClassMetadata('FFClientGraph\Entities\DataTimestamp');
+            self::$classes = TestUtils::setUpClasses(self::$entityManager);
             self::$schemaTool = new SchemaTool(self::$entityManager);
             self::$schemaTool->updateSchema(self::$classes);
         } catch (ORMException $exception) {

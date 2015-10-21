@@ -149,7 +149,7 @@ class DB
         $node = $this->getOrCreateNode($nodeId);
 
         //TODO Implement
-        $nodeInfo = NodeInfo::create($node, $nodeArray['nodeinfo']);
+        $nodeInfo = NodeInfo::create($node, $nodeArray, $this->entityManager);
         $nodeStats = NodeStats::create($node, $nodeArray['statistics']);
 
 //        if (!$node->getName() or $node->getName() === '') {

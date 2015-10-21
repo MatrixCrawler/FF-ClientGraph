@@ -99,9 +99,9 @@ class Hardware
     {
         //TODO Test
         $hardwareRepo = $entityManager->getRepository('FFClientGraph\Entities\Hardware');
-        $result = $hardwareRepo->findBy(['model' => $nodeInfoArray['nodeinfo']['hardware']['model']]);
+        $result = $hardwareRepo->findOneBy(['model' => $nodeInfoArray['nodeinfo']['hardware']['model']]);
         if ($result) {
-            return $result[0];
+            return $result;
         }
         return self::create($nodeInfo, $nodeInfoArray);
     }
