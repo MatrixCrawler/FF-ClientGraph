@@ -212,7 +212,6 @@ class NodeInfo
         $this->node = $node;
     }
 
-
     /**
      * Set the NodeInfo
      *
@@ -222,8 +221,6 @@ class NodeInfo
      */
     public static function create(Node $node, $nodeInfoArray)
     {
-        //TODO Testing
-        //TODO Implement
         $nodeInfo = new NodeInfo($node);
 
         $nodeInfo->setHostname($nodeInfoArray['nodeinfo']['hostname']);
@@ -232,7 +229,6 @@ class NodeInfo
         $nodeInfo->setLatitude(floatval($nodeInfoArray['nodeinfo']['location']['latitude']));
         $nodeInfo->setLongitude(floatval($nodeInfoArray['nodeinfo']['location']['longitude']));
         $nodeInfo->setOwner($nodeInfoArray['nodeinfo']['owner']['contact']);
-
 
         return $nodeInfo;
     }
