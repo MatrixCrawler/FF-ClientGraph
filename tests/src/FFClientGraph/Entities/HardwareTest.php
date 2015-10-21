@@ -90,6 +90,14 @@ class HardwareTest extends PHPUnit_Framework_TestCase
 
     public function testGetOrCreate_returnExistingIfExisting()
     {
+        TestUtils::clearDB(self::$schemaTool, self::$classes);
+
+        TestUtils::insertHardware(self::$entityManager, 'TestHardware');
+        $hardwareRepository = self::$entityManager->getRepository('FFClientGraph\Entities\Hardware');
+        $result = $hardwareRepository->findOneBy(['model' => 'TestHardware']);
+
+        self::assertEquals('TestHardware', $result->getModel());
+
         //TODO Implement. Function to insert a complete Dataset into DB
     }
 

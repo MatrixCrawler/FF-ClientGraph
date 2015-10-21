@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\Entities\DataTimestamp;
+use FFClientGraph\Entities\Hardware;
 use FFClientGraph\Entities\Node;
 use FFClientGraph\Entities\NodeStats;
 
@@ -97,5 +98,16 @@ class TestUtils
         $DBConnection['path'] = __DIR__ . '/../../../resources/test.sqlite.db';
 
         return $DBConnection;
+    }
+
+    /**
+     * @param EntityManager $entityManager
+     * @param string $name
+     */
+    public static function insertHardware(EntityManager $entityManager, $name) {
+        $hardware = new Hardware();
+        $hardware->setModel($name);
+        $entityManager->persist($hardware);
+        $entityManager->flush($hardware);
     }
 }

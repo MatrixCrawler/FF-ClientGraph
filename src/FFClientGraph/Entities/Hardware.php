@@ -24,7 +24,7 @@ class Hardware
 
     /**
      * @Id
-     * @Column(type="string")
+     * @Column(type="string", unique=true)
      */
     protected $model;
 
@@ -38,7 +38,7 @@ class Hardware
      * Hardware constructor.
      * @param NodeInfo $nodeInfo
      */
-    public function __construct(NodeInfo $nodeInfo)
+    public function __construct(NodeInfo $nodeInfo = null)
     {
         $this->nodeInfo = $nodeInfo;
     }
