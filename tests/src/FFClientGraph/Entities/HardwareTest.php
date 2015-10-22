@@ -32,7 +32,6 @@ class HardwareTest extends PHPUnit_Framework_TestCase
         TestUtils::insertHardware('Ubiquiti Bullet M');
         $entityManager = TestUtils::getEntityManager();
 
-
         $hardware = Hardware::getOrCreate($entityManager, $nodeData['nodes']['68725120d3ed']);
 
         self::assertNotNull($hardware);

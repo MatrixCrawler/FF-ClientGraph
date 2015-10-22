@@ -3,12 +3,12 @@ namespace FFClientGraph\Entities;
 
 use DateTime;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
 
 /**
@@ -26,7 +26,7 @@ class NodeInfo
     protected $id;
 
     /**
-     * @ORM\OneToOne(targetEntity="Node", mappedBy="nodeInfo")
+     * @OneToOne(targetEntity="Node", mappedBy="nodeInfo")
      * @var Node
      */
     protected $node;
@@ -34,37 +34,38 @@ class NodeInfo
     /**
      * @ManyToOne(targetEntity="Hardware", inversedBy="nodeInfo", cascade={"persist"})
      * @JoinColumn(name="hardware_id", referencedColumnName="model")
-     * @var
+     * @var Hardware
      */
     protected $hardware;
 
     /**
-     * @ORM\Column(type="string")
+     * @Column(type="string", nullable=false, nullable=true)
+     * @var string
      */
     protected $hostname;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=8)
+     * @Column(type="decimal", precision=10, scale=8, nullable=true)
      */
     protected $latitude;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=8)
+     * @Column(type="decimal", precision=10, scale=8, nullable=true)
      */
     protected $longitude;
 
     /**
-     * @ORM\Column(type="string")
+     * @Column(type="string", nullable=true)
      */
     protected $owner;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @Column(type="datetime", nullable=true)
      */
     protected $firstseen;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @Column(type="datetime", nullable=true)
      */
     protected $lastseen;
 
@@ -225,17 +226,21 @@ class NodeInfo
      */
     public static function create(EntityManager $entityManager, Node $node, $nodeInfoArray)
     {
+        if (!is_array($nodeInfoArray) || !array_key_exists('nodeinfo', $nodeInfoArray)) {
+            return null;
+        }
         $nodeInfo = new NodeInfo($node);
 
-        $nodeInfo->setHostname($nodeInfoArray['nodeinfo']['hostname']);
-        $nodeInfo->setFirstseen(new DateTime($nodeInfoArray['firstseen']));
-        $nodeInfo->setLastseen(new DateTime($nodeInfoArray['lastseen']));
-        $nodeInfo->setLatitude(floatval($nodeInfoArray['nodeinfo']['location']['latitude']));
-        $nodeInfo->setLongitude(floatval($nodeInfoArray['nodeinfo']['location']['longitude']));
-        $nodeInfo->setOwner($nodeInfoArray['nodeinfo']['owner']['contact']);
+        $nodeInfo->setHostname(isset($nodeInfoArray['nodeinfo']['hostname']) ? $nodeInfoArray['nodeinfo']['hostname'] : null);
+        $nodeInfo->setFirstseen(isset($nodeInfoArray['firstseen']) ? new DateTime($nodeInfoArray['firstseen']) : null);
+        $nodeInfo->setLastseen(isset($nodeInfoArray['lastseen']) ? new DateTime($nodeInfoArray['lastseen']) : null);
+        $nodeInfo->setLatitude(isset($nodeInfoArray['nodeinfo']['location']['latitude']) ? floatval($nodeInfoArray['nodeinfo']['location']['latitude']) : null);
+        $nodeInfo->setLongitude(isset($nodeInfoArray['nodeinfo']['location']['longitude']) ? floatval($nodeInfoArray['nodeinfo']['location']['longitude']) : null);
+        $nodeInfo->setOwner(isset($nodeInfoArray['nodeinfo']['owner']['contact']) ? $nodeInfoArray['nodeinfo']['owner']['contact'] : null);
 
-        $nodeInfo->setHardware(Hardware::getOrCreate($entityManager,$nodeInfoArray));
+        $nodeInfo->setHardware(Hardware::getOrCreate($entityManager, $nodeInfoArray));
 
+        $node->setNodeInfo($nodeInfo);
         return $nodeInfo;
     }
 }

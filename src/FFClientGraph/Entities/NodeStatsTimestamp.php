@@ -4,10 +4,8 @@ namespace FFClientGraph\Entities;
 
 use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
@@ -32,7 +30,7 @@ class NodeStatsTimestamp
      * The timestamp when the data was fetched
      *
      * @Column(type="datetime")
-     * @var DateTime|DateTimeImmutable
+     * @var DateTime
      */
     protected $timestamp;
 
@@ -40,14 +38,14 @@ class NodeStatsTimestamp
      * The timestamp the fetched data was signed with
      *
      * @Column(type="datetime", nullable=true)
-     * @var DateTime|DateTimeImmutable
+     * @var DateTime
      */
     protected $dataDateTime;
 
     /**
      * The NodeStats associated with this timestamp
      *
-     * @OneToMany(targetEntity="NodeStats", mappedBy="statTimestamp", cascade={"persist"})
+     * @OneToMany(targetEntity="NodeStats", mappedBy="statTimestamp", cascade={"persist", "remove"})
      * @var NodeStats[]
      */
     protected $nodeStats;
@@ -133,8 +131,8 @@ class NodeStatsTimestamp
 
 
     /**
-     * @param DateTimeInterface $timeStamp
-     * @param DateTimeInterface|null $dataTime
+     * @param DateTime|DateTimeImmutable $timeStamp
+     * @param DateTime|DateTimeImmutable $dataTime
      * @return NodeStatsTimestamp
      */
     private function create($timeStamp, $dataTime = null)
@@ -147,14 +145,14 @@ class NodeStatsTimestamp
 
     /**
      * @param EntityManager $entityManager
-     * @param DateTimeInterface $timeStamp
-     * @param DateTimeInterface $dataTimestamp
+     * @param DateTime|DateTimeImmutable $timeStamp
+     * @param DateTime|DateTimeImmutable $dataTimestamp
      * @return NodeStatsTimestamp
      */
-    public static function getOrCreate(EntityManager $entityManager, DateTimeInterface $timeStamp, DateTimeInterface $dataTimestamp = null)
+    public static function getOrCreate(EntityManager $entityManager, $timeStamp, $dataTimestamp = null)
     {
         $dataTimestampRepository = $entityManager->getRepository('FFClientGraph\Entities\NodeStatsTimestamp');
-        $result = $dataTimestampRepository->findOneBy(['timestamp' => $timeStamp]);
+        $result = $dataTimestampRepository->findOneBy(['timestamp' => $timeStamp, 'dataDateTime' => $dataTimestamp]);
         if ($result) {
             return $result;
         }

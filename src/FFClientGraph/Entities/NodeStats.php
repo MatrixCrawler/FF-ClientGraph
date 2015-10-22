@@ -39,7 +39,8 @@ class NodeStats
     protected $node;
 
     /**
-     * @ManyToOne(targetEntity="NodeStatsTimestamp", inversedBy="nodeStats", cascade={"persist", "remove"})
+     * @ManyToOne(targetEntity="NodeStatsTimestamp", inversedBy="nodeStats", cascade={"persist"})
+     * @JoinColumn(name="timestamp_id", referencedColumnName="id")
      * @var NodeStatsTimestamp
      */
     protected $statTimestamp;
@@ -170,10 +171,11 @@ class NodeStats
     /**
      *
      * @param Node $node
+     * @param NodeStatsTimestamp $nodeStatsTimestamp
      * @param $nodeDataArray
      * @return NodeStats
      */
-    public static function create(Node $node, $nodeDataArray)
+    public static function create(Node $node, NodeStatsTimestamp $nodeStatsTimestamp, $nodeDataArray)
     {
         $nodeStats = new NodeStats();
         $nodeStats->setNode($node);
@@ -181,6 +183,11 @@ class NodeStats
         $nodeStats->setClients($nodeDataArray['statistics']['clients']);
         $nodeStats->setRxBytes($nodeDataArray['statistics']['traffic']['rx']['bytes']);
         $nodeStats->setTxBytes($nodeDataArray['statistics']['traffic']['tx']['bytes']);
+
+        $nodeStats->setStatTimestamp($nodeStatsTimestamp);
+        $nodeStatsTimestamp->addStatData($nodeStats);
+
+        $node->addNodeStats($nodeStats);
 
         return $nodeStats;
     }

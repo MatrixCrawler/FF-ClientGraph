@@ -17,6 +17,7 @@ use Doctrine\ORM\Tools\Setup;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\Entities\Hardware;
 use FFClientGraph\Entities\Node;
+use FFClientGraph\Entities\NodeInfo;
 use FFClientGraph\Entities\NodeStatsTimestamp;
 
 class TestUtils
@@ -35,12 +36,13 @@ class TestUtils
     }
 
     /**
-     * @param String $nodeId
+     * @param $nodeDataArray
      */
-    public static function insertNode($nodeId)
+    public static function insertNode($nodeDataArray)
     {
         $node = new Node();
-        $node->setNodeId($nodeId);
+        $node->setNodeId($nodeDataArray['nodeinfo']['node_id']);
+        NodeInfo::create(self::getEntityManager(), $node, $nodeDataArray);
         $entityManager = self::getEntityManager();
         $entityManager->persist($node);
         $entityManager->flush($node);

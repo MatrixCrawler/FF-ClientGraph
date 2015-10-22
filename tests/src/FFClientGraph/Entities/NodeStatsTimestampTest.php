@@ -60,19 +60,21 @@ class NodeStatsTimestampTest extends PHPUnit_Framework_TestCase
         $dataTime = new DateTime();
         $dataTime = $dataTime->sub(new DateInterval('PT5H'));
 
-        $dataTimestamp = NodeStatsTimestamp::getOrCreate($entityManager, new DateTime(), $dataTime);
+        $dateTime = new DateTime();
+        $dataTimestamp = NodeStatsTimestamp::getOrCreate($entityManager, $dateTime, $dataTime);
 
         self::assertNotNull($dataTimestamp);
         self::assertInstanceOf('FFClientGraph\Entities\NodeStatsTimestamp', $dataTimestamp);
         self::assertNotNull($dataTimestamp->getDataDateTime());
         self::assertEquals($dataTime->format('c'), $dataTimestamp->getDataDateTime()->format('c'));
         self::assertNotTrue($entityManager->contains($dataTimestamp));
+        self::assertEquals($dateTime->format('c'), $dataTimestamp->getTimestamp()->format('c'));
 
     }
 
     public function testGetOrCreate_returnExisting()
     {
-        $dateTime = new \DateTimeImmutable();
+        $dateTime = new DateTime();
 
         TestUtils::clearDB();
         TestUtils::insertDataTimestamp($dateTime);
@@ -103,6 +105,7 @@ class NodeStatsTimestampTest extends PHPUnit_Framework_TestCase
         self::assertTrue($entityManager->contains($dataTimestamp));
         self::assertNotNull($dataTimestamp->getDataDateTime());
         self::assertEquals($dataTime->format('c'), $dataTimestamp->getDataDateTime()->format('c'));
+        self::assertEquals($dateTime->format('c'), $dataTimestamp->getTimestamp()->format('c'));
 
     }
 

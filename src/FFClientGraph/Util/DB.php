@@ -122,16 +122,18 @@ class DB
      * Save the given Node-Data
      *
      * @param array $nodeDataArray An associative Array of Node data
+     * @param DateTime $nodeStatTimestamp
      * @param DateTime $dataTimestamp
      */
-    public function saveSingleNodeData($nodeDataArray, DateTime $dataTimestamp = null)
+    public function saveSingleNodeData($nodeDataArray, DateTime $nodeStatTimestamp = null, DateTime $dataTimestamp = null)
     {
         if (!array_key_exists('nodeinfo', $nodeDataArray)) {
             $this->logger->addError('Wrong JSON data', [get_class()]);
             return;
         }
-
-        $nodeId = $nodeDataArray['nodeinfo']['node_id'];
+        $this->entityManager->getConnection()->beginTransaction();
+//        $entityManager = $this->entityManager->create($this->entityManager->getConnection(), $this->entityManager->getConfiguration());
+        $entityManager = $this->entityManager;
 
         /**
          * Looking for DataTimestamp and store it in class
@@ -139,39 +141,19 @@ class DB
          * by calling DB::saveNodes() should have the same DataTimestamp
          */
         if (!$this->dataTimeStamp) {
-            $this->dataTimeStamp = $this->getOrCreateDataTimestamp($dataTimestamp);
+            $this->dataTimeStamp = NodeStatsTimestamp::getOrCreate($entityManager, $nodeStatTimestamp, $dataTimestamp);
         }
 
-        /**
-         * Check if node has already a hostname
-         * If not: Set it
-         */
-        $node = $this->getOrCreateNode($nodeId);
+        $node = Node::getOrCreate($entityManager, $nodeDataArray);
 
-        //TODO Implement
-        $nodeInfo = NodeInfo::create($this->entityManager, $node, $nodeDataArray);
-        $nodeStats = NodeStats::create($node, $nodeDataArray);
+        NodeInfo::create($entityManager, $node, $nodeDataArray);
+        $nodeStats = NodeStats::create($node, $this->dataTimeStamp, $nodeDataArray);
+        $node->addNodeStats($nodeStats);
 
-//        if (!$node->getName() or $node->getName() === '') {
-//            $node->setName($nodeArray['nodeinfo']['hostname']);
-//        }
+        $entityManager->persist($nodeStats);
+        $entityManager->flush($nodeStats);
+        $this->entityManager->getConnection()->commit();
 
-//        $nodeStatRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-
-        /**
-         * Check if this data is already stored
-         */
-//        $nodeData = $nodeStatRepository->findBy(['dataTimestamp' => $this->dataTimeStamp, 'node' => $node]);
-//        if (!$nodeData || count($nodeData) <= 0) {
-//            $nodeData = new NodeStats();
-//            $nodeData->setClients($nodeArray['statistics']['clients']);
-//            $nodeData->setDataTimestamp($this->dataTimeStamp);
-//            $nodeData->setNode($node);
-//            $this->dataTimeStamp->addStatData($nodeData);
-//            $node->addStatData($nodeData);
-//            $this->entityManager->persist($nodeData);
-//            $this->entityManager->flush($nodeData);
-//        }
     }
 
     /**
@@ -184,10 +166,11 @@ class DB
         $this->logger->addDebug('Reading dataTimestamp from nodes.json', [get_class()]);
         if (!array_key_exists('timestamp', $nodeData)) {
             $dataTimestamp = null;
-            $this->logger->addNotice('No dataTimestamp in nodex.json', [get_class()]);
+            $this->logger->addNotice('No dataTimestamp in nodes.json', [get_class()]);
         } else {
             $dataTimestamp = new DateTime($nodeData['timestamp']);
         }
+
         foreach ($nodeData['nodes'] as $nodeDetail) {
             $this->saveSingleNodeData($nodeDetail, $dataTimestamp);
         }
@@ -197,42 +180,42 @@ class DB
          */
         $this->deleteOldNodeData();
     }
-
-    /**
-     * Get list of nodes from DB
-     *
-     * @return Node[]|null
-     */
-    public function getNodes()
-    {
-        $nodeRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
-        return $nodeRepository->findAll();
-    }
-
-    /**
-     * Get data for specified node of the last 24hrs
-     *
-     * @param $nodeID
-     * @return NodeStats[]|null An array of NodeStats or null
-     */
-    public function getNodeData($nodeID)
-    {
-        $timestampMinus24H = new DateTime($this->timeStamp->format('c'));
-        $timestampMinus24H->sub(new DateInterval('PT24H'));
-
-        $nodeDataRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-
-        $qb = $nodeDataRepository->createQueryBuilder('nd');
-        $qb->join('nd.dataTimestamp', 'ds')
-            ->join('nd.node', 'node')
-            ->where('ds.timestamp > :timestamp')
-            ->andWhere('node.nodeId = :nodeId')
-            ->orderBy('ds.timestamp', 'ASC')
-            ->setParameter('timestamp', $timestampMinus24H)
-            ->setParameter('nodeId', $nodeID);
-        $query = $qb->getQuery();
-        return $query->getResult();
-    }
+//
+//    /**
+//     * Get list of nodes from DB
+//     *
+//     * @return Node[]|null
+//     */
+//    public function getNodes()
+//    {
+//        $nodeRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
+//        return $nodeRepository->findAll();
+//    }
+//
+//    /**
+//     * Get data for specified node of the last 24hrs
+//     *
+//     * @param $nodeID
+//     * @return NodeStats[]|null An array of NodeStats or null
+//     */
+//    public function getNodeData($nodeID)
+//    {
+//        $timestampMinus24H = new DateTime($this->timeStamp->format('c'));
+//        $timestampMinus24H->sub(new DateInterval('PT24H'));
+//
+//        $nodeDataRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
+//
+//        $qb = $nodeDataRepository->createQueryBuilder('nd');
+//        $qb->join('nd.dataTimestamp', 'ds')
+//            ->join('nd.node', 'node')
+//            ->where('ds.timestamp > :timestamp')
+//            ->andWhere('node.nodeId = :nodeId')
+//            ->orderBy('ds.timestamp', 'ASC')
+//            ->setParameter('timestamp', $timestampMinus24H)
+//            ->setParameter('nodeId', $nodeID);
+//        $query = $qb->getQuery();
+//        return $query->getResult();
+//    }
 
 //    /**
 //     * @return Logger|null
@@ -291,62 +274,62 @@ class DB
 //        }
 //    }
 
-    /**
-     * Look for a Node with the nodeId $nodeId
-     * Create one if none is found
-     *
-     * @param $nodeId
-     * @return Node
-     */
-    private function getOrCreateNode($nodeId)
-    {
-        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
-        $result = $nodeTimestampRepository->findBy(['nodeId' => $nodeId]);
-        if ($result) {
-            return $result[0];
-        } else {
-            /**
-             * There was no node
-             */
-            $node = new Node();
-            $node->setNodeId($nodeId);
-            return $node;
-        }
-    }
+//    /**
+//     * Look for a Node with the nodeId $nodeId
+//     * Create one if none is found
+//     *
+//     * @param $nodeId
+//     * @return Node
+//     */
+//    private function getOrCreateNode($nodeId)
+//    {
+//        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
+//        $result = $nodeTimestampRepository->findBy(['nodeId' => $nodeId]);
+//        if ($result) {
+//            return $result[0];
+//        } else {
+//            /**
+//             * There was no node
+//             */
+//            $node = new Node();
+//            $node->setNodeId($nodeId);
+//            return $node;
+//        }
+//    }
 
-    /**
-     * Return existing node
-     *
-     * @param string $nodeId
-     * @return Node|null
-     */
-    public function getExistingNode($nodeId)
-    {
-        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
-        $result = $nodeTimestampRepository->findBy(['nodeId' => $nodeId]);
-        if ($result) {
-            return $result[0];
-        }
-        return null;
-    }
-
-    /**
-     * Return the number of dataTimestamps that are younger than 24hrs
-     * @return int
-     */
-    public function getNumberOfTimestamps()
-    {
-        $timestamp = new DateTime($this->timeStamp->format('c'));
-        $timestamp = $timestamp->sub(new DateInterval('PT24H'));
-        $dataTimestampRepo = $this->entityManager->getRepository('FFClientGraph\Entities\DataTimestamp');
-        $qb = $dataTimestampRepo->createQueryBuilder('dts');
-        $qb->where('dts.timestamp > :timestamp')
-            ->setParameter('timestamp', $timestamp);
-        $query = $qb->getQuery();
-        $result = $query->getResult();
-        return count($result);
-    }
-
+//    /**
+//     * Return existing node
+//     *
+//     * @param string $nodeId
+//     * @return Node|null
+//     */
+//    public function getExistingNode($nodeId)
+//    {
+//        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
+//        $result = $nodeTimestampRepository->findBy(['nodeId' => $nodeId]);
+//        if ($result) {
+//            return $result[0];
+//        }
+//        return null;
+//    }
+//
+//    /**
+//     * Return the number of dataTimestamps that are younger than 24hrs
+//     * @return int
+//     */
+//    public function getNumberOfTimestamps()
+//    {
+//        $timestamp = new DateTime($this->timeStamp->format('c'));
+//        $timestamp = $timestamp->sub(new DateInterval('PT24H'));
+//        $dataTimestampRepo = $this->entityManager->getRepository('FFClientGraph\Entities\DataTimestamp');
+//        $qb = $dataTimestampRepo->createQueryBuilder('dts');
+//        $qb->where('dts.timestamp > :timestamp')
+//            ->setParameter('timestamp', $timestamp);
+//        $query = $qb->getQuery();
+//        $result = $query->getResult();
+//        return count($result);
+//    }
+//
     /**
      * Function to delete obsolete data from the database
      * Delete all data that is older than 24hrs
@@ -356,29 +339,29 @@ class DB
         $timestampMinus24H = new DateTime();
         $timestampMinus24H = $timestampMinus24H->sub(new DateInterval('PT24H'));
 
-        $dataTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-        $queryBuilder = $dataTimestampRepository->createQueryBuilder('ns');
-        $queryBuilder->join('ns.dataTimestamp', 'dst')
-            ->where('dst.timestamp < :timestamp')
+        $dataTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStatsTimestamp');
+        $queryBuilder = $dataTimestampRepository->createQueryBuilder('nst');
+        $queryBuilder
+            ->where('nst.timestamp < :timestamp')
             ->setParameter('timestamp', $timestampMinus24H);
         $query = $queryBuilder->getQuery();
         $result = $query->execute();
-        foreach ($result as $nodeStat) {
-            $this->entityManager->remove($nodeStat);
+        foreach ($result as $nodeStatsTimestamp) {
+            $this->entityManager->remove($nodeStatsTimestamp);
         }
         $this->entityManager->flush();
     }
-
-    /**
-     * Update the database schema if needed
-     */
-    public function updateSchema()
-    {
-        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\Node');
-        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
-        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\DataTimestamp');
-
-        $schemaTool = new SchemaTool($this->entityManager);
-        $schemaTool->updateSchema($classes);
-    }
+//
+//    /**
+//     * Update the database schema if needed
+//     */
+//    public function updateSchema()
+//    {
+//        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\Node');
+//        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
+//        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\DataTimestamp');
+//
+//        $schemaTool = new SchemaTool($this->entityManager);
+//        $schemaTool->updateSchema($classes);
+//    }
 }

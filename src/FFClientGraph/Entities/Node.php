@@ -32,14 +32,14 @@ class Node
     protected $nodeId;
 
     /**
-     * @OneToOne(targetEntity="NodeInfo", mappedBy="node")
-     * @JoinColumn(name="nodeinfo_id", referencedColumnName="id", nullable=true)
+     * @OneToOne(targetEntity="NodeInfo", mappedBy="node", cascade={"persist", "remove"})
+     * @JoinColumn(name="nodeinfo_id", referencedColumnName="id")
      * @var NodeInfo
      */
     protected $nodeInfo;
 
     /**
-     * @OneToMany(targetEntity="NodeStats", mappedBy="node", cascade={"persist","remove"},)
+     * @OneToMany(targetEntity="NodeStats", mappedBy="node", cascade={"persist", "remove"},)
      * @var NodeStats[]
      */
     protected $nodeStats;
@@ -90,18 +90,23 @@ class Node
     public function setNodeInfo($nodeInfo)
     {
         $this->nodeInfo = $nodeInfo;
+        $nodeInfo->setNode($this);
     }
 
     /**
      * Create a Node
      *
-     * @param string $nodeId
+     * @param $entityManager
+     * @param $nodeDataArray
      * @return Node
      */
-    private function create($nodeId)
+    private function create($entityManager, $nodeDataArray)
     {
         $node = new Node();
-        $node->setNodeId($nodeId);
+        $node->setNodeId($nodeDataArray['nodeinfo']['node_id']);
+
+        NodeInfo::create($entityManager, $node, $nodeDataArray);
+
         return $node;
     }
 
@@ -109,17 +114,21 @@ class Node
      * Look for Node or create a new one if not existing
      *
      * @param EntityManager $entityManager
-     * @param $nodeId
+     * @param array $nodeDataArray
      * @return Node
      */
-    public static function getOrCreate(EntityManager $entityManager, $nodeId)
+    public static function getOrCreate(EntityManager $entityManager, $nodeDataArray)
     {
+        if (!is_array($nodeDataArray) || !array_key_exists('nodeinfo', $nodeDataArray) || !array_key_exists('node_id', $nodeDataArray['nodeinfo'])) {
+            return null;
+        }
         $nodeRepository = $entityManager->getRepository('FFClientGraph\Entities\Node');
-        $result = $nodeRepository->findOneBy(['nodeId' => $nodeId]);
+        $result = $nodeRepository->findOneBy(['nodeId' => $nodeDataArray['nodeinfo']['node_id']]);
+
         if ($result) {
             return $result;
         }
-        return self::create($nodeId);
+        return self::create($entityManager, $nodeDataArray);
     }
 
 }
