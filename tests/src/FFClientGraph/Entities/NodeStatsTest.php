@@ -58,7 +58,7 @@ class NodeStatsTest extends PHPUnit_Framework_TestCase
         TestUtils::clearDB(self::$schemaTool, self::$classes);
         $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
         $node = new Node();
-        $nodeStats = NodeStats::create($node, $nodeData);
+        $nodeStats = NodeStats::create($node, $nodeData['nodes']['68725120d3ed']);
 
         self::assertEquals($node, $nodeStats->getNode());
         self::assertEquals(26, $nodeStats->getClients());
