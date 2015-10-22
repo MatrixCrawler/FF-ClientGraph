@@ -27,6 +27,7 @@ class Node
     /**
      * @Id
      * @Column(type="string", unique=true)
+     * @var string
      */
     protected $nodeId;
 
@@ -44,7 +45,7 @@ class Node
     protected $nodeStats;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getNodeId()
     {
@@ -52,7 +53,7 @@ class Node
     }
 
     /**
-     * @param mixed $nodeId
+     * @param string $nodeId
      */
     public function setNodeId($nodeId)
     {
@@ -60,7 +61,7 @@ class Node
     }
 
     /**
-     * @return mixed
+     * @return NodeStats[]
      */
     public function getNodeStats()
     {
@@ -70,7 +71,7 @@ class Node
     /**
      * @param NodeStats $nodeData
      */
-    public function addStatData(NodeStats $nodeData)
+    public function addNodeStats(NodeStats $nodeData)
     {
         $this->nodeStats[] = $nodeData;
     }
@@ -89,6 +90,36 @@ class Node
     public function setNodeInfo($nodeInfo)
     {
         $this->nodeInfo = $nodeInfo;
+    }
+
+    /**
+     * Create a Node
+     *
+     * @param string $nodeId
+     * @return Node
+     */
+    private function create($nodeId)
+    {
+        $node = new Node();
+        $node->setNodeId($nodeId);
+        return $node;
+    }
+
+    /**
+     * Look for Node or create a new one if not existing
+     *
+     * @param EntityManager $entityManager
+     * @param $nodeId
+     * @return Node
+     */
+    public static function getOrCreate(EntityManager $entityManager, $nodeId)
+    {
+        $nodeRepository = $entityManager->getRepository('FFClientGraph\Entities\Node');
+        $result = $nodeRepository->findOneBy(['nodeId' => $nodeId]);
+        if ($result) {
+            return $result;
+        }
+        return self::create($nodeId);
     }
 
 }

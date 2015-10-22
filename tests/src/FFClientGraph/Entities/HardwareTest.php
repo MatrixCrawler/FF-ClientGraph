@@ -53,41 +53,29 @@ class HardwareTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testCreate()
+    public function testGetOrCreate_returnNewHardware()
     {
-        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
-        $hardware = Hardware::create(new NodeInfo(new Node()), $nodeData['nodes']['68725120d3ed']);
-
-        self::assertEquals('Ubiquiti Bullet M', $hardware->getModel());
-    }
-
-    public function testGetOrCreate_createNewIfNotExisting()
-    {
-        /**
-         * Clear database
-         */
         TestUtils::clearDB(self::$schemaTool, self::$classes);
         $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
 
-        $nodeInfo = new NodeInfo();
-        $hardware = Hardware::getOrCreate(self::$entityManager, $nodeInfo, $nodeData['nodes']['68725120d3ed']);
+        $hardware = Hardware::getOrCreate(self::$entityManager, $nodeData['nodes']['68725120d3ed']);
 
         self::assertNotNull($hardware);
         self::assertInstanceOf('FFClientGraph\Entities\Hardware', $hardware);
-        self::assertEquals($nodeInfo, $hardware->getNodeInfo());
+        self::assertNotTrue(self::$entityManager->contains($hardware));
     }
 
-    public function testGetOrCreate_returnExistingIfExisting()
+    public function testGetOrCreate_returnExistingHardware()
     {
         TestUtils::clearDB(self::$schemaTool, self::$classes);
-
         TestUtils::insertHardware(self::$entityManager, 'Ubiquiti Bullet M');
-
         $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/test_small.json'), true);
-        $nodeInfo = new NodeInfo();
-        $hardware = Hardware::getOrCreate(self::$entityManager, $nodeInfo, $nodeData['nodes']['68725120d3ed']);
 
-        self::assertNull($hardware->getNodeInfo());
+        $hardware = Hardware::getOrCreate(self::$entityManager, $nodeData['nodes']['68725120d3ed']);
+
+        self::assertNotNull($hardware);
+        self::assertInstanceOf('FFClientGraph\Entities\Hardware', $hardware);
+        self::assertTrue(self::$entityManager->contains($hardware));
     }
 
     public static function tearDownAfterClass()

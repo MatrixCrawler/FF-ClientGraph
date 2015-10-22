@@ -94,11 +94,13 @@ class NodeInfo
     }
 
     /**
+     * Set Hardware and add NodeInfo to Hardware Entity
      * @param Hardware $hardware
      */
     public function setHardware($hardware)
     {
         $this->hardware = $hardware;
+        $hardware->addNodeInfo($this);
     }
 
     /**
@@ -232,7 +234,7 @@ class NodeInfo
         $nodeInfo->setLongitude(floatval($nodeInfoArray['nodeinfo']['location']['longitude']));
         $nodeInfo->setOwner($nodeInfoArray['nodeinfo']['owner']['contact']);
 
-        $nodeInfo->setHardware(Hardware::getOrCreate($entityManager, $nodeInfo, $nodeInfoArray));
+        $nodeInfo->setHardware(Hardware::getOrCreate($entityManager,$nodeInfoArray));
 
         return $nodeInfo;
     }

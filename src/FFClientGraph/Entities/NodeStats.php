@@ -39,10 +39,10 @@ class NodeStats
     protected $node;
 
     /**
-     * @ManyToOne(targetEntity="DataTimestamp", inversedBy="nodeStats", cascade={"persist", "remove"})
-     * @var DataTimestamp
+     * @ManyToOne(targetEntity="NodeStatsTimestamp", inversedBy="nodeStats", cascade={"persist", "remove"})
+     * @var NodeStatsTimestamp
      */
-    protected $dataTimestamp;
+    protected $statTimestamp;
 
     /**
      * @Column(type="decimal",scale=16,precision=17 )
@@ -103,19 +103,19 @@ class NodeStats
     }
 
     /**
-     * @return DataTimestamp
+     * @return NodeStatsTimestamp
      */
-    public function getDataTimestamp()
+    public function getStatTimestamp()
     {
-        return $this->dataTimestamp;
+        return $this->statTimestamp;
     }
 
     /**
-     * @param DataTimestamp $dataTimestamp
+     * @param NodeStatsTimestamp $statTimestamp
      */
-    public function setDataTimestamp($dataTimestamp)
+    public function setStatTimestamp($statTimestamp)
     {
-        $this->dataTimestamp = $dataTimestamp;
+        $this->statTimestamp = $statTimestamp;
     }
 
     /**

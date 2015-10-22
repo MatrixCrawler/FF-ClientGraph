@@ -30,7 +30,7 @@ class Hardware
 
     /**
      * @OneToMany(targetEntity="NodeInfo", mappedBy="hardware", cascade={"persist","remove"})
-     * @var NodeInfo
+     * @var NodeInfo[]
      */
     protected $nodeInfo;
 
@@ -60,7 +60,7 @@ class Hardware
     }
 
     /**
-     * @return NodeInfo
+     * @return NodeInfo[]
      */
     public function getNodeInfo()
     {
@@ -70,40 +70,41 @@ class Hardware
     /**
      * @param NodeInfo $nodeInfo
      */
-    public function setNodeInfo($nodeInfo)
+    public function addNodeInfo($nodeInfo)
     {
-        $this->nodeInfo = $nodeInfo;
+        $this->nodeInfo[] = $nodeInfo;
     }
 
     /**
-     * @param NodeInfo $nodeInfo
-     * @param array $nodeInfoArray
+     * Create a new Hardware
+     *
+     * @param string $model
      * @return Hardware
      */
-    public static function create(NodeInfo $nodeInfo, $nodeInfoArray)
+    private function create($model)
     {
-        $hardware = new Hardware($nodeInfo);
-
-        $hardware->setModel($nodeInfoArray['nodeinfo']['hardware']['model']);
-
+        $hardware = new Hardware();
+        $hardware->setModel($model);
         return $hardware;
     }
 
     /**
+     * Get an existing Hardware-Entity or create a new one
+     *
      * @param EntityManager $entityManager
-     * @param NodeInfo $nodeInfo
      * @param array $nodeInfoArray
      * @return Hardware
      */
-    public static function getOrCreate(EntityManager $entityManager, NodeInfo $nodeInfo, $nodeInfoArray)
+    public static function getOrCreate(EntityManager $entityManager, $nodeInfoArray)
     {
-        //TODO Test
+        $model = $nodeInfoArray['nodeinfo']['hardware']['model'];
+
         $hardwareRepo = $entityManager->getRepository('FFClientGraph\Entities\Hardware');
-        $result = $hardwareRepo->findOneBy(['model' => $nodeInfoArray['nodeinfo']['hardware']['model']]);
+        $result = $hardwareRepo->findOneBy(['model' => $model]);
         if ($result) {
             return $result;
         }
-        return self::create($nodeInfo, $nodeInfoArray);
+        return self::create($model);
     }
 
 }

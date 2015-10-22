@@ -19,7 +19,7 @@ use Doctrine\ORM\Tools\Setup;
 use Exception;
 use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
-use FFClientGraph\Entities\DataTimestamp;
+use FFClientGraph\Entities\NodeStatsTimestamp;
 use FFClientGraph\Entities\Node;
 use FFClientGraph\Entities\NodeInfo;
 use FFClientGraph\Entities\NodeStats;
@@ -42,7 +42,7 @@ class DB
     private $timeStamp;
 
     /**
-     * @var DataTimestamp
+     * @var NodeStatsTimestamp
      */
     private $dataTimeStamp = null;
 
@@ -121,17 +121,17 @@ class DB
     /**
      * Save the given Node-Data
      *
-     * @param array $nodeArray An associative Array of Node data
+     * @param array $nodeDataArray An associative Array of Node data
      * @param DateTime $dataTimestamp
      */
-    public function saveSingleNodeData($nodeArray, DateTime $dataTimestamp = null)
+    public function saveSingleNodeData($nodeDataArray, DateTime $dataTimestamp = null)
     {
-        if (!array_key_exists('nodeinfo', $nodeArray)) {
+        if (!array_key_exists('nodeinfo', $nodeDataArray)) {
             $this->logger->addError('Wrong JSON data', [get_class()]);
             return;
         }
 
-        $nodeId = $nodeArray['nodeinfo']['node_id'];
+        $nodeId = $nodeDataArray['nodeinfo']['node_id'];
 
         /**
          * Looking for DataTimestamp and store it in class
@@ -149,8 +149,8 @@ class DB
         $node = $this->getOrCreateNode($nodeId);
 
         //TODO Implement
-        $nodeInfo = NodeInfo::create($node, $nodeArray, $this->entityManager);
-        $nodeStats = NodeStats::create($node, $nodeArray['statistics']);
+        $nodeInfo = NodeInfo::create($node, $nodeDataArray, $this->entityManager);
+        $nodeStats = NodeStats::create($node, $nodeDataArray);
 
 //        if (!$node->getName() or $node->getName() === '') {
 //            $node->setName($nodeArray['nodeinfo']['hostname']);
@@ -242,54 +242,54 @@ class DB
 //        return $this->logger;
 //    }
 
-    /**
-     * Get last data timestamp for given nodeId
-     *
-     * @param $nodeId
-     * @return DateTime|null
-     */
-    public function getLastTimestamp($nodeId)
-    {
-        $nodeStatsRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-        $qb = $nodeStatsRepository->createQueryBuilder('ns');
-        $qb->join('ns.node', 'node')
-            ->join('ns.dataTimestamp', 'ds')
-            ->where('node.nodeId = :nodeId')
-            ->orderBy('ds.timestamp', 'desc')
-            ->setMaxResults(1)
-            ->setParameter('nodeId', $nodeId);
-        $query = $qb->getQuery();
-        $result = $query->getResult();
-        if ($result && count($result) >= 1) {
-            return $result[0]->getOrCreateDataTimestamp()->getTimestamp();
-        }
-        return null;
-    }
+//    /**
+//     * Get last data timestamp for given nodeId
+//     *
+//     * @param $nodeId
+//     * @return DateTime|null
+//     */
+//    public function getLastTimestamp($nodeId)
+//    {
+//        $nodeStatsRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
+//        $qb = $nodeStatsRepository->createQueryBuilder('ns');
+//        $qb->join('ns.node', 'node')
+//            ->join('ns.dataTimestamp', 'ds')
+//            ->where('node.nodeId = :nodeId')
+//            ->orderBy('ds.timestamp', 'desc')
+//            ->setMaxResults(1)
+//            ->setParameter('nodeId', $nodeId);
+//        $query = $qb->getQuery();
+//        $result = $query->getResult();
+//        if ($result && count($result) >= 1) {
+//            return $result[0]->getOrCreateDataTimestamp()->getTimestamp();
+//        }
+//        return null;
+//    }
 
-    /**
-     * Look for Datatimestamp that is equal to the curent timestamp
-     * If non is found, create one else return the existing
-     *
-     * @param DateTimeInterface $dataTimestamp The timestamp the nodes.json is signed with
-     * @return DataTimestamp A new or existing DataTimestamp
-     */
-    private function getOrCreateDataTimestamp(DateTimeInterface $dataTimestamp)
-    {
-        $this->logger->addDebug('Getting DataTimestamp', [get_class()]);
-
-        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\DataTimestamp');
-        $result = $nodeTimestampRepository->findBy(['timestamp' => $this->timeStamp]);
-        if ($result) {
-            return $result[0];
-        } else {
-            /**
-             * There was no timestamp
-             */
-            $this->logger->addDebug('Creating new DataTimestamp ' . $this->timeStamp->format('c'), [get_class()]);
-            $timestamp = new DataTimestamp($this->timeStamp, $dataTimestamp);
-            return $timestamp;
-        }
-    }
+//    /**
+//     * Look for Datatimestamp that is equal to the curent timestamp
+//     * If non is found, create one else return the existing
+//     *
+//     * @param DateTimeInterface $dataTimestamp The timestamp the nodes.json is signed with
+//     * @return DataTimestamp A new or existing DataTimestamp
+//     */
+//    private function getOrCreateDataTimestamp(DateTimeInterface $dataTimestamp)
+//    {
+//        $this->logger->addDebug('Getting DataTimestamp', [get_class()]);
+//
+//        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\DataTimestamp');
+//        $result = $nodeTimestampRepository->findBy(['timestamp' => $this->timeStamp]);
+//        if ($result) {
+//            return $result[0];
+//        } else {
+//            /**
+//             * There was no timestamp
+//             */
+//            $this->logger->addDebug('Creating new DataTimestamp ' . $this->timeStamp->format('c'), [get_class()]);
+//            $timestamp = new DataTimestamp($this->timeStamp, $dataTimestamp);
+//            return $timestamp;
+//        }
+//    }
 
     /**
      * Look for a Node with the nodeId $nodeId
