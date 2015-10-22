@@ -10,41 +10,51 @@ namespace FFClientGraph;
 
 
 use DateTime;
-use DateTimeInterface;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\Tools\Setup;
 use FFClientGraph\Config\Constants;
-use FFClientGraph\Entities\NodeStatsTimestamp;
 use FFClientGraph\Entities\Hardware;
 use FFClientGraph\Entities\Node;
-use FFClientGraph\Entities\NodeStats;
+use FFClientGraph\Entities\NodeStatsTimestamp;
 
 class TestUtils
 {
 
     /**
      * Clear database for testing
-     *
-     * @param SchemaTool $schemaTool
-     * @param array $classes
      */
-    public static function clearDB(SchemaTool $schemaTool, $classes)
+    public static function clearDB()
     {
+        $em = self::getEntityManager();
+        $schemaTool = new SchemaTool($em);
         $schemaTool->dropDatabase();
-        $schemaTool->createSchema($classes);
+        $schemaTool->createSchema(self::setUpClasses($em));
+        $em->close();
     }
 
     /**
-     * @param EntityManager $entityManager
      * @param String $nodeId
-     *
      */
-    public static function insertNode(EntityManager $entityManager, $nodeId)
+    public static function insertNode($nodeId)
     {
         $node = new Node();
         $node->setNodeId($nodeId);
+        $entityManager = self::getEntityManager();
         $entityManager->persist($node);
         $entityManager->flush($node);
+    }
+
+    public static function getEntityManager()
+    {
+        /**
+         * Setup ORM and EntityManager
+         */
+        $ORMConfig = Setup::createAnnotationMetadataConfiguration(array(Constants::ENTITY_PATH), true);
+
+        $DBConnection = TestUtils::setUpConnection();
+        return EntityManager::create($DBConnection, $ORMConfig);
     }
 
 //    /**
@@ -115,32 +125,41 @@ class TestUtils
     }
 
     /**
-     * @param EntityManager $entityManager
+     * Delete the DB
+     */
+    public static function deleteDB()
+    {
+        $dbFilename = __DIR__ . '/../../resources/test.sqlite.db';
+        if (file_exists($dbFilename)) {
+            unlink($dbFilename);
+        }
+    }
+
+    /**
      * @param string $name
      */
-    public static function insertHardware(EntityManager $entityManager, $name)
+    public static function insertHardware($name)
     {
         $hardware = new Hardware();
         $hardware->setModel($name);
+        $entityManager = self::getEntityManager();
         $entityManager->persist($hardware);
         $entityManager->flush($hardware);
     }
 
     /**
-     * @param EntityManager $entityManager
-     * @param DateTimeInterface $timestamp
-     * @param DateTimeInterface $dataTime
+     * @param DateTime|DateTimeImmutable $timestamp
+     * @param DateTime|DateTimeImmutable $dataTime
      */
-    public static function insertDataTimestamp(EntityManager $entityManager, DateTimeInterface $timestamp, DateTimeInterface $dataTime = null)
+    public static function insertDataTimestamp($timestamp, $dataTime = null)
     {
         $dataTimestamp = new NodeStatsTimestamp();
-//        $dataTimestamp = new NodeStatsTimestamp($timestamp, $dataTime);
         $dataTimestamp->setTimestamp($timestamp);
         $dataTimestamp->setDataDateTime($dataTime);
 
+        $entityManager = self::getEntityManager();
         $entityManager->persist($dataTimestamp);
         $entityManager->flush($dataTimestamp);
-
-        return $dataTimestamp;
+        $entityManager->close();
     }
 }

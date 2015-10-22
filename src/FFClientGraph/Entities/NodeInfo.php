@@ -218,12 +218,12 @@ class NodeInfo
     /**
      * Set the NodeInfo
      *
+     * @param EntityManager $entityManager
      * @param Node $node
      * @param array $nodeInfoArray
-     * @param EntityManager $entityManager
      * @return NodeInfo
      */
-    public static function create(Node $node, $nodeInfoArray, EntityManager $entityManager)
+    public static function create(EntityManager $entityManager, Node $node, $nodeInfoArray)
     {
         $nodeInfo = new NodeInfo($node);
 

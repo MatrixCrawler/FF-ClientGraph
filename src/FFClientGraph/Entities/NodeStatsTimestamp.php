@@ -58,18 +58,6 @@ class NodeStatsTimestamp
      */
     protected $timezone;
 
-//    /**
-//     * @param DateTimeInterface $dateTime The current DateTime
-//     * @param DateTimeInterface|null $dataDateTime The DateTime of the node.js data
-//     */
-//    public function __construct(DateTimeInterface $dateTime, DateTimeInterface $dataDateTime = null)
-//    {
-//        echo "construct\n";
-//        $this->setTimestamp($dateTime);
-//        $this->setTimezone($dateTime->getTimezone()->getName());
-////        $this->setDataDateTime($dataDateTime);
-//    }
-
     /**
      * @return NodeStats[]
      */
@@ -141,9 +129,6 @@ class NodeStatsTimestamp
     public function setDataDateTime($dataDateTime)
     {
         $this->dataDateTime = $dataDateTime;
-        echo "set\n";
-        print_r($dataDateTime);
-        print_r($this->dataDateTime);
     }
 
 
@@ -154,8 +139,10 @@ class NodeStatsTimestamp
      */
     private function create($timeStamp, $dataTime = null)
     {
-        echo "create";
-        return new NodeStatsTimestamp($timeStamp, $dataTime);
+        $nodeStatsTimeStamp =  new NodeStatsTimestamp();
+        $nodeStatsTimeStamp->setTimestamp($timeStamp);
+        $nodeStatsTimeStamp->setDataDateTime($dataTime);
+        return $nodeStatsTimeStamp;
     }
 
     /**

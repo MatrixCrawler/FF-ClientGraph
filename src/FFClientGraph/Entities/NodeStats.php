@@ -175,8 +175,6 @@ class NodeStats
      */
     public static function create(Node $node, $nodeDataArray)
     {
-
-        //TODO Implement
         $nodeStats = new NodeStats();
         $nodeStats->setNode($node);
         $nodeStats->setMemoryUsage($nodeDataArray['statistics']['memory_usage']);
