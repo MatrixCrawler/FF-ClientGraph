@@ -136,17 +136,6 @@ class TestUtils
     }
 
     /**
-     * Delete the DB
-     */
-    public static function deleteDB()
-    {
-        $dbFilename = __DIR__ . '/../../resources/test.sqlite.db';
-        if (file_exists($dbFilename)) {
-            unlink($dbFilename);
-        }
-    }
-
-    /**
      * @param string $name
      */
     public static function insertHardware($name)

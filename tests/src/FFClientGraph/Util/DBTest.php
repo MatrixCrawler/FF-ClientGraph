@@ -222,8 +222,4 @@ class DBTest extends PHPUnit_Framework_TestCase
         self::assertEquals(50, count($result));
     }
 
-    public static function tearDownAfterClass()
-    {
-        TestUtils::deleteDB();
-    }
 }
