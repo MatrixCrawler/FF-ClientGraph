@@ -119,7 +119,7 @@ class Graph
         }
         foreach ($nodeData as $nodeStat) {
             $clientPoints[] = $nodeStat->getClients();
-            $timestamp = $nodeStat->getStatTimestamp()->getTimestamp()->setTimezone(new DateTimeZone('Europe/Berlin'))->format('D H:i');
+            $timestamp = $nodeStat->getStatTimestamp()->getCreated()->setTimezone(new DateTimeZone('Europe/Berlin'))->format('D H:i');
             $labelPoints[] = $timestamp;
         }
 

@@ -10,19 +10,20 @@ namespace FFClientGraph\Util;
 
 use DateInterval;
 use DateTime;
-use DateTimeInterface;
 use DateTimeZone;
+use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\ORMInvalidArgumentException;
 use Doctrine\ORM\Tools\Setup;
 use Exception;
 use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
-use FFClientGraph\Entities\NodeStatsTimestamp;
 use FFClientGraph\Entities\Node;
 use FFClientGraph\Entities\NodeInfo;
 use FFClientGraph\Entities\NodeStats;
+use FFClientGraph\Entities\NodeStatsTimestamp;
 use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -44,7 +45,7 @@ class DB
     /**
      * @var NodeStatsTimestamp
      */
-    private $dataTimeStamp = null;
+    private $nodeStatsTimestamp = null;
 
     /**
      * @var EntityManager|null The EntityManager used to manipulate the data
@@ -115,45 +116,66 @@ class DB
         }
         $this->timeStamp = new DateTime();
         $this->timeStamp->setTimezone(new DateTimeZone('UTC'));
-        $this->dataTimeStamp = null;
+        $this->nodeStatsTimestamp = null;
     }
 
     /**
      * Save the given Node-Data
      *
      * @param array $nodeDataArray An associative Array of Node data
-     * @param DateTime $nodeStatTimestamp
-     * @param DateTime $dataTimestamp
+     * @param DateTime $dataTimestamp the time from the data in the nodes.json
      */
-    public function saveSingleNodeData($nodeDataArray, DateTime $nodeStatTimestamp = null, DateTime $dataTimestamp = null)
+    public function saveSingleNodeData($nodeDataArray, DateTime $dataTimestamp = null)
     {
         if (!array_key_exists('nodeinfo', $nodeDataArray)) {
             $this->logger->addError('Wrong JSON data', [get_class()]);
             return;
         }
-        $this->entityManager->getConnection()->beginTransaction();
-//        $entityManager = $this->entityManager->create($this->entityManager->getConnection(), $this->entityManager->getConfiguration());
-        $entityManager = $this->entityManager;
+        try {
+            $this->logger->addDebug('Saving node data for ' . $nodeDataArray['nodeinfo']['node_id'], [get_class()]);
+            $this->entityManager->getConnection()->beginTransaction();
+            $entityManager = $this->entityManager;
 
-        /**
-         * Looking for DataTimestamp and store it in class
-         * When we are saving multiple nodes, this will save queries as all nodeStat-Data that is saved
-         * by calling DB::saveNodes() should have the same DataTimestamp
-         */
-        if (!$this->dataTimeStamp) {
-            $this->dataTimeStamp = NodeStatsTimestamp::getOrCreate($entityManager, $nodeStatTimestamp, $dataTimestamp);
+            /**
+             * Looking for DataTimestamp and store it in class
+             * When we are saving multiple nodes, this will save queries as all nodeStat-Data that is saved
+             * by calling DB::saveNodes() should have the same DataTimestamp
+             */
+            if ($this->nodeStatsTimestamp === null) {
+                $created = new DateTime();
+                $this->logger->addDebug('Creating new nodeStatsTimestamp', [get_class()]);
+                $this->nodeStatsTimestamp = NodeStatsTimestamp::getOrCreate($entityManager, $created, $dataTimestamp);
+                $this->logger->addDebug('NodeStats created: ' . $this->nodeStatsTimestamp->getCreated()->format('c'), [get_class()]);
+                $this->logger->addDebug('NodeStats data timestamp: ' . $this->nodeStatsTimestamp->getDataTimestamp()->format('c'), [get_class()]);
+            }
+
+            $this->logger->addDebug('Creating node entity', [get_class()]);
+            $node = Node::getOrCreate($entityManager, $nodeDataArray);
+
+            $this->logger->addDebug('Creating nodeInfo entity', [get_class()]);
+            NodeInfo::create($entityManager, $node, $nodeDataArray);
+
+            $this->logger->addDebug('Creating nodeStats entity', [get_class()]);
+            $nodeStats = NodeStats::create($node, $this->nodeStatsTimestamp, $nodeDataArray);
+            $node->addNodeStats($nodeStats);
+
+            $this->logger->addDebug('Persisting data', [get_class()]);
+            $entityManager->persist($nodeStats);
+            $entityManager->flush($nodeStats);
+            $this->entityManager->getConnection()->commit();
+        } catch (ORMInvalidArgumentException $exception) {
+            $this->logger->addError('There was an ORMInvalidArgumentException. Switch to debug level for more information', [get_class()]);
+            $this->logger->addError($exception->getCode());
+            $this->logger->addDebug($exception->getTraceAsString());
+        } catch (OptimisticLockException $exception) {
+            $this->logger->addError('There was an OptimisticLockException. Switch to debug level for more information', [get_class()]);
+            $this->logger->addError($exception->getCode());
+            $this->logger->addDebug($exception->getTraceAsString());
+        } catch (ConnectionException $exception) {
+            $this->logger->addError('There was an OptimisticLockException. Switch to debug level for more information', [get_class()]);
+            $this->logger->addError($exception->getCode());
+            $this->logger->addDebug($exception->getTraceAsString());
         }
-
-        $node = Node::getOrCreate($entityManager, $nodeDataArray);
-
-        NodeInfo::create($entityManager, $node, $nodeDataArray);
-        $nodeStats = NodeStats::create($node, $this->dataTimeStamp, $nodeDataArray);
-        $node->addNodeStats($nodeStats);
-
-        $entityManager->persist($nodeStats);
-        $entityManager->flush($nodeStats);
-        $this->entityManager->getConnection()->commit();
-
     }
 
     /**
@@ -168,7 +190,9 @@ class DB
             $dataTimestamp = null;
             $this->logger->addNotice('No dataTimestamp in nodes.json', [get_class()]);
         } else {
+            $this->logger->addDebug('Create timestamp from nodes.json data', [get_class()]);
             $dataTimestamp = new DateTime($nodeData['timestamp']);
+            $this->logger->addDebug('Timestamp: ' . $dataTimestamp->format('c'), [get_class()]);
         }
 
         foreach ($nodeData['nodes'] as $nodeDetail) {
@@ -342,7 +366,7 @@ class DB
         $dataTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStatsTimestamp');
         $queryBuilder = $dataTimestampRepository->createQueryBuilder('nst');
         $queryBuilder
-            ->where('nst.timestamp < :timestamp')
+            ->where('nst.created < :timestamp')
             ->setParameter('timestamp', $timestampMinus24H);
         $query = $queryBuilder->getQuery();
         $result = $query->execute();

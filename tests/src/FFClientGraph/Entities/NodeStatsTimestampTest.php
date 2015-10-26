@@ -47,7 +47,7 @@ class NodeStatsTimestampTest extends PHPUnit_Framework_TestCase
 
         self::assertNotNull($dataTimestamp);
         self::assertInstanceOf('FFClientGraph\Entities\NodeStatsTimestamp', $dataTimestamp);
-        self::assertNull($dataTimestamp->getDataDateTime());
+        self::assertNull($dataTimestamp->getDataTimestamp());
         self::assertNotTrue($entityManager->contains($dataTimestamp));
 
     }
@@ -65,10 +65,10 @@ class NodeStatsTimestampTest extends PHPUnit_Framework_TestCase
 
         self::assertNotNull($dataTimestamp);
         self::assertInstanceOf('FFClientGraph\Entities\NodeStatsTimestamp', $dataTimestamp);
-        self::assertNotNull($dataTimestamp->getDataDateTime());
-        self::assertEquals($dataTime->format('c'), $dataTimestamp->getDataDateTime()->format('c'));
+        self::assertNotNull($dataTimestamp->getDataTimestamp());
+        self::assertEquals($dataTime->format('c'), $dataTimestamp->getDataTimestamp()->format('c'));
         self::assertNotTrue($entityManager->contains($dataTimestamp));
-        self::assertEquals($dateTime->format('c'), $dataTimestamp->getTimestamp()->format('c'));
+        self::assertEquals($dateTime->format('c'), $dataTimestamp->getCreated()->format('c'));
 
     }
 
@@ -84,7 +84,7 @@ class NodeStatsTimestampTest extends PHPUnit_Framework_TestCase
 
         self::assertNotNull($dataTimestamp);
         self::assertInstanceOf('FFClientGraph\Entities\NodeStatsTimestamp', $dataTimestamp);
-        self::assertNull($dataTimestamp->getDataDateTime());
+        self::assertNull($dataTimestamp->getDataTimestamp());
         self::assertTrue($entityManager->contains($dataTimestamp));
 
     }
@@ -103,9 +103,9 @@ class NodeStatsTimestampTest extends PHPUnit_Framework_TestCase
         self::assertNotNull($dataTimestamp);
         self::assertInstanceOf('FFClientGraph\Entities\NodeStatsTimestamp', $dataTimestamp);
         self::assertTrue($entityManager->contains($dataTimestamp));
-        self::assertNotNull($dataTimestamp->getDataDateTime());
-        self::assertEquals($dataTime->format('c'), $dataTimestamp->getDataDateTime()->format('c'));
-        self::assertEquals($dateTime->format('c'), $dataTimestamp->getTimestamp()->format('c'));
+        self::assertNotNull($dataTimestamp->getDataTimestamp());
+        self::assertEquals($dataTime->format('c'), $dataTimestamp->getDataTimestamp()->format('c'));
+        self::assertEquals($dateTime->format('c'), $dataTimestamp->getCreated()->format('c'));
 
     }
 

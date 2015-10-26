@@ -5,8 +5,11 @@ namespace FFClientGraph\Util;
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 require_once __DIR__ . '/../TestUtils.php';
 
+use DateInterval;
 use DateTime;
+use DateTimeImmutable;
 use FFClientGraph\Entities\Node;
+use FFClientGraph\Entities\NodeStatsTimestamp;
 use FFClientGraph\TestUtils;
 use Monolog\Logger;
 use PHPUnit_Framework_TestCase;
@@ -24,9 +27,9 @@ class DBTest extends PHPUnit_Framework_TestCase
 
         $db = new DB(self::$logLevel, $entityManager);
 
-        $dateTime = new DateTime($nodeData['timestamp']);
+        $created = new DateTime($nodeData['timestamp']);
 
-        $db->saveSingleNodeData($nodeData['nodes']['68725120d3ed'], $dateTime, $dateTime);
+        $db->saveSingleNodeData($nodeData['nodes']['68725120d3ed'], $created);
         $entityManager->close();
 
         $entityManager = TestUtils::getEntityManager();
@@ -40,7 +43,7 @@ class DBTest extends PHPUnit_Framework_TestCase
         self::assertInstanceOf('FFClientGraph\Entities\NodeStats', $result->getNodeStats()[0]);
         self::assertEquals('68725120d3ed', $result->getNodeId());
         self::assertNotNull($result->getNodeStats()[0]->getStatTimestamp());
-        self::assertNotNull($result->getNodeStats()[0]->getStatTimestamp()->getDataDateTime());
+        self::assertNotNull($result->getNodeStats()[0]->getStatTimestamp()->getDataTimestamp());
 
         return $db;
     }
@@ -166,55 +169,56 @@ class DBTest extends PHPUnit_Framework_TestCase
         $entityManager = TestUtils::getEntityManager();
         $entityRepository = $entityManager->getRepository('FFClientGraph\Entities\NodeStats');
         $resultNodeStats = $entityRepository->findAll();
-        print_r($resultNodeStats);
         self::assertEquals(5, count($resultNodeStats));
     }
 
-//    public function testDeleteObsoleteNodeData()
-//    {
-//        TestUtils::clearDB();
-//
-//        $entityManager = TestUtils::getEntityManager();
-//        $timestamp = new DateTimeImmutable();
-//
-//        for ($i = 0; $i < 48; $i++) {
-//            $nst = NodeStatsTimestamp::getOrCreate($entityManager, $timestamp);
-//            $entityManager->persist($nst);
-//            $timestamp = $timestamp->sub(new DateInterval('PT1H'));
-//            echo $timestamp->format('c')."\n";
-//        }
-//        $entityManager->flush();
-//        $entityManager->close();
-//
-//        $entityManager = TestUtils::getEntityManager();
-//        $db = new DB(self::$logLevel, $entityManager);
-//        $db->deleteOldNodeData();
-//        $entityManager->close();
-//
-//        $entityManager = TestUtils::getEntityManager();
-//        $dsRepo = $entityManager->getRepository('FFClientGraph\Entities\NodeStatsTimestamp');
-//        $dsResult = $dsRepo->findAll();
-//        self::assertGreaterThan(0, count($dsResult));
-//        self::assertLessThanOrEqual(25, count($dsResult));
-//    }
-//
-//    public function testNumberOfTimestamps()
-//    {
-//        $db = new DB(self::$logLevel, self::$entityManager);
-//        TestUtils::clearDB(self::$schemaTool, self::$classes);
-//        $timestamp = new DateTime();
-//        for ($i = 0; $i < 48; $i++) {
-//            TestUtils::insertNodeData(self::$entityManager, 'someNodeId', $timestamp);
-//            $timestamp = $timestamp->sub(new DateInterval('PT1H'));
-//        }
-//
-//        $result = $db->getNumberOfTimestamps();
-//
-//        self::assertLessThanOrEqual(25, $result);
-//    }
-//
-//    public static function tearDownAfterClass()
-//    {
-//        self::$schemaTool->dropDatabase();
-//    }
+    public function testDeleteObsoleteNodeData()
+    {
+        TestUtils::clearDB();
+
+        $entityManager = TestUtils::getEntityManager();
+        $timestamp = new DateTimeImmutable();
+
+        for ($i = 0; $i < 48; $i++) {
+            $nst = NodeStatsTimestamp::getOrCreate($entityManager, $timestamp);
+            $entityManager->persist($nst);
+            $timestamp = $timestamp->sub(new DateInterval('PT1H'));
+        }
+        $entityManager->flush();
+        $entityManager->close();
+
+        $entityManager = TestUtils::getEntityManager();
+        $db = new DB(self::$logLevel, $entityManager);
+        $db->deleteOldNodeData();
+        $entityManager->close();
+
+        $entityManager = TestUtils::getEntityManager();
+        $dsRepo = $entityManager->getRepository('FFClientGraph\Entities\NodeStatsTimestamp');
+        $dsResult = $dsRepo->findAll();
+        self::assertGreaterThan(0, count($dsResult));
+        self::assertLessThanOrEqual(25, count($dsResult));
+    }
+
+    public function testNumberOfTimestamps()
+    {
+        TestUtils::clearDB();
+
+        $entityManager = TestUtils::getEntityManager();
+
+        $db = new DB(self::$logLevel, $entityManager);
+        $timestamp = new DateTime();
+        for ($i = 0; $i < 48; $i++) {
+            TestUtils::insertNodeData(self::$entityManager, 'someNodeId', $timestamp);
+            $timestamp = $timestamp->sub(new DateInterval('PT1H'));
+        }
+
+        $result = $db->getNumberOfTimestamps();
+
+        self::assertLessThanOrEqual(25, $result);
+    }
+
+    public static function tearDownAfterClass()
+    {
+        TestUtils::deleteDB();
+    }
 }

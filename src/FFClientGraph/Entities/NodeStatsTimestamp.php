@@ -32,7 +32,7 @@ class NodeStatsTimestamp
      * @Column(type="datetime")
      * @var DateTime
      */
-    protected $timestamp;
+    protected $created;
 
     /**
      * The timestamp the fetched data was signed with
@@ -40,7 +40,7 @@ class NodeStatsTimestamp
      * @Column(type="datetime", nullable=true)
      * @var DateTime
      */
-    protected $dataDateTime;
+    protected $dataTimestamp;
 
     /**
      * The NodeStats associated with this timestamp
@@ -75,20 +75,20 @@ class NodeStatsTimestamp
     /**
      * @return DateTime
      */
-    public function getTimestamp()
+    public function getCreated()
     {
-        $this->timestamp->setTimeZone(new DateTimeZone($this->timezone));
+        $this->created->setTimeZone(new DateTimeZone($this->timezone));
 
-        return $this->timestamp;
+        return $this->created;
     }
 
     /**
-     * @param DateTime|DateTimeImmutable $timestamp
+     * @param DateTime|DateTimeImmutable $created
      */
-    public function setTimestamp($timestamp)
+    public function setCreated($created)
     {
-        $this->timestamp = $timestamp;
-        $this->timezone = $timestamp->getTimezone()->getName();
+        $this->created = $created;
+        $this->timezone = $created->getTimezone()->getName();
     }
 
     /**
@@ -111,52 +111,52 @@ class NodeStatsTimestamp
     /**
      * @return DateTime
      */
-    public function getDataDateTime()
+    public function getDataTimestamp()
     {
-        if ($this->dataDateTime === null) {
+        if ($this->dataTimestamp === null) {
             return null;
         }
-        $this->dataDateTime = $this->dataDateTime->setTimezone(new DateTimeZone($this->getTimezone()));
-        return $this->dataDateTime;
+        $this->dataTimestamp = $this->dataTimestamp->setTimezone(new DateTimeZone($this->getTimezone()));
+        return $this->dataTimestamp;
     }
 
 
     /**
-     * @param DateTime|DateTimeImmutable $dataDateTime
+     * @param DateTime|DateTimeImmutable $dataTimestamp
      */
-    public function setDataDateTime($dataDateTime)
+    public function setDataTimestamp($dataTimestamp)
     {
-        $this->dataDateTime = $dataDateTime;
+        $this->dataTimestamp = $dataTimestamp;
     }
 
 
     /**
-     * @param DateTime|DateTimeImmutable $timeStamp
-     * @param DateTime|DateTimeImmutable $dataTime
+     * @param DateTime|DateTimeImmutable $created
+     * @param DateTime|DateTimeImmutable $dataTimestamp
      * @return NodeStatsTimestamp
      */
-    private function create($timeStamp, $dataTime = null)
+    private function create($created, $dataTimestamp = null)
     {
-        $nodeStatsTimeStamp =  new NodeStatsTimestamp();
-        $nodeStatsTimeStamp->setTimestamp($timeStamp);
-        $nodeStatsTimeStamp->setDataDateTime($dataTime);
+        $nodeStatsTimeStamp = new NodeStatsTimestamp();
+        $nodeStatsTimeStamp->setCreated($created);
+        $nodeStatsTimeStamp->setDataTimestamp($dataTimestamp);
         return $nodeStatsTimeStamp;
     }
 
     /**
      * @param EntityManager $entityManager
-     * @param DateTime|DateTimeImmutable $timeStamp
+     * @param DateTime|DateTimeImmutable $created
      * @param DateTime|DateTimeImmutable $dataTimestamp
      * @return NodeStatsTimestamp
      */
-    public static function getOrCreate(EntityManager $entityManager, $timeStamp, $dataTimestamp = null)
+    public static function getOrCreate(EntityManager $entityManager, $created, $dataTimestamp = null)
     {
         $dataTimestampRepository = $entityManager->getRepository('FFClientGraph\Entities\NodeStatsTimestamp');
-        $result = $dataTimestampRepository->findOneBy(['timestamp' => $timeStamp, 'dataDateTime' => $dataTimestamp]);
+        $result = $dataTimestampRepository->findOneBy(['created' => $created, 'dataTimestamp' => $dataTimestamp]);
         if ($result) {
             return $result;
         }
-        return self::create($timeStamp, $dataTimestamp);
+        return self::create($created, $dataTimestamp);
     }
 
 
