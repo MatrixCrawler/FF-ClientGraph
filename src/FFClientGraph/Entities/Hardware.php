@@ -81,7 +81,7 @@ class Hardware
      * @param string $model
      * @return Hardware
      */
-    private function create($model)
+    private static function create($model)
     {
         $hardware = new Hardware();
         $hardware->setModel($model);

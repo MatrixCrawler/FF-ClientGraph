@@ -158,7 +158,7 @@ class NodeStatsTimestamp
      * @param DateTime|DateTimeImmutable $dataTimestamp
      * @return NodeStatsTimestamp
      */
-    private function create($created, $dataTimestamp = null)
+    private static function create($created, $dataTimestamp = null)
     {
         $nodeStatsTimeStamp = new NodeStatsTimestamp();
         $nodeStatsTimeStamp->setCreated($created);

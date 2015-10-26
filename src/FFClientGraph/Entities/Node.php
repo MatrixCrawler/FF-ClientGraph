@@ -100,7 +100,7 @@ class Node
      * @param $nodeDataArray
      * @return Node
      */
-    private function create($entityManager, $nodeDataArray)
+    private static function create($entityManager, $nodeDataArray)
     {
         $node = new Node();
         $node->setNodeId($nodeDataArray['nodeinfo']['node_id']);
