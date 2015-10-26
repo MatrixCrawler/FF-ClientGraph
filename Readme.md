@@ -12,19 +12,18 @@ Dies ist ein Tool zum Tracken und grafischer Darstellung der Auslastung von Frei
 
 ## Installation
 
-1. Load the Composer requirements by calling ```PATH/TO/YOUR/php.exe PATH/TO/YOUR/composer.phar update```
-2. Edit the config file ```src/FFClientGraph/config/Config.php```
-3. Create the database schema by calling ```vendor\bin\doctrine orm:schema-tool:create``` in the root of the project
+1. Lade die benötigten Composer-Dependencies mit dem Befehl ```PATH/TO/YOUR/php.exe PATH/TO/YOUR/composer.phar update```. Composer kann hier herunter geladen werden: http://www.getcomposer.org
+2. Bearbeite die Konfiguration nach deinen Bedürfnissen ```src/FFClientGraph/config/Config.php```
+3. Die Datenbank-Schemata werden erzeugt, wenn das erste mal der cron-script aufgerufen wird. Hier wird auch überprüft, ob das Datenbank-Schema noch aktuell ist. Bitte benutze eine eigene Datenbank für dieses Tool, da beim überprüfen der Schemata andere Tabellen entfernt werden könnten.
 
 ### Generierung über Cronjobs
-The cronjob ```cron.php``` should run every n minutes. I would suggest every 5 Minutes.
-It fetches data from the remote node.json and stores it into the configured database.
-
+Der Cronjob ```cron.php``` sollte jede n Minuten laufen, je nachdem wie akurat die Datensammlung sein soll.
+Der Cronjob holt die Daten von der remote nodes.json (siehe Konfiguration) und speichert die Werte in der Datenbank.
 
 ### Generierung der Grafik "on Demand"
-To generate a graph call ```YOURURI/graph.php?client=CLIENT_ID```
-The will generate the graph image if there is no cached version for it.
-The caching time can be configured at ```Config::CACHE_AGE```
+Um einen Graphen zu erzeugen, rufe den Script ```YOURURI/graph.php?client=CLIENT_ID``` auf.
+dadurch wird ein Graph erzeugt, wenn es keine gecachte Version davon gibt. Ansonsten wird die gecachte Version ausgeliefert.
+Die Cachingzeit kann über folgegenden Wert in der Konfiguration angepasst werden: ```Config::CACHE_AGE```
 
 ### Generierung aller Grafiken
 Es ist möglich alle Grafiken auf einmal zu generieren. Dazu muss die Funktion FFClientGraph::createAllGraphs aufgerufen werden.
