@@ -54,7 +54,13 @@ class NodeStatsTimestamp
      * @Column(type="string")
      * @var string
      */
-    protected $timezone;
+    protected $createdTimezone;
+
+    /**
+     * @Column(type="string", nullable=true)
+     * @var string
+     */
+    protected $dataTimestampTimezone;
 
     /**
      * @return NodeStats[]
@@ -77,7 +83,7 @@ class NodeStatsTimestamp
      */
     public function getCreated()
     {
-        $this->created->setTimeZone(new DateTimeZone($this->timezone));
+        $this->created->setTimeZone(new DateTimeZone($this->createdTimezone));
 
         return $this->created;
     }
@@ -88,23 +94,23 @@ class NodeStatsTimestamp
     public function setCreated($created)
     {
         $this->created = $created;
-        $this->timezone = $created->getTimezone()->getName();
+        $this->createdTimezone = $created->getTimezone()->getName();
     }
 
     /**
      * @return string
      */
-    public function getTimezone()
+    public function getCreatedTimezone()
     {
-        return $this->timezone;
+        return $this->createdTimezone;
     }
 
     /**
-     * @param string $timezone
+     * @param string $createdTimezone
      */
-    public function setTimezone($timezone)
+    public function setCreatedTimezone($createdTimezone)
     {
-        $this->timezone = $timezone;
+        $this->createdTimezone = $createdTimezone;
     }
 
 
@@ -116,7 +122,7 @@ class NodeStatsTimestamp
         if ($this->dataTimestamp === null) {
             return null;
         }
-        $this->dataTimestamp = $this->dataTimestamp->setTimezone(new DateTimeZone($this->getTimezone()));
+        $this->dataTimestamp = $this->dataTimestamp->setTimezone(new DateTimeZone($this->getDataTimestampTimezone()));
         return $this->dataTimestamp;
     }
 
@@ -127,6 +133,23 @@ class NodeStatsTimestamp
     public function setDataTimestamp($dataTimestamp)
     {
         $this->dataTimestamp = $dataTimestamp;
+        $this->dataTimestampTimezone = $dataTimestamp ? $dataTimestamp->getTimezone()->getName() : null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDataTimestampTimezone()
+    {
+        return $this->dataTimestampTimezone;
+    }
+
+    /**
+     * @param string $dataTimestampTimezone
+     */
+    public function setDataTimestampTimezone($dataTimestampTimezone)
+    {
+        $this->dataTimestampTimezone = $dataTimestampTimezone;
     }
 
 

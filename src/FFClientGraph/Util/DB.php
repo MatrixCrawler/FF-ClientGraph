@@ -157,7 +157,6 @@ class DB
 
             $this->logger->addDebug('Creating nodeStats entity', [get_class()]);
             $nodeStats = NodeStats::create($node, $this->nodeStatsTimestamp, $nodeDataArray);
-            $node->addNodeStats($nodeStats);
 
             $this->logger->addDebug('Persisting data', [get_class()]);
             $entityManager->persist($nodeStats);
@@ -192,6 +191,7 @@ class DB
         } else {
             $this->logger->addDebug('Create timestamp from nodes.json data', [get_class()]);
             $dataTimestamp = new DateTime($nodeData['timestamp']);
+            $dataTimestamp->setTimezone(new DateTimeZone('UTC'));
             $this->logger->addDebug('Timestamp: ' . $dataTimestamp->format('c'), [get_class()]);
         }
 
@@ -204,156 +204,101 @@ class DB
          */
         $this->deleteOldNodeData();
     }
-//
-//    /**
-//     * Get list of nodes from DB
-//     *
-//     * @return Node[]|null
-//     */
-//    public function getNodes()
-//    {
-//        $nodeRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
-//        return $nodeRepository->findAll();
-//    }
-//
-//    /**
-//     * Get data for specified node of the last 24hrs
-//     *
-//     * @param $nodeID
-//     * @return NodeStats[]|null An array of NodeStats or null
-//     */
-//    public function getNodeData($nodeID)
-//    {
-//        $timestampMinus24H = new DateTime($this->timeStamp->format('c'));
-//        $timestampMinus24H->sub(new DateInterval('PT24H'));
-//
-//        $nodeDataRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-//
-//        $qb = $nodeDataRepository->createQueryBuilder('nd');
-//        $qb->join('nd.dataTimestamp', 'ds')
-//            ->join('nd.node', 'node')
-//            ->where('ds.timestamp > :timestamp')
-//            ->andWhere('node.nodeId = :nodeId')
-//            ->orderBy('ds.timestamp', 'ASC')
-//            ->setParameter('timestamp', $timestampMinus24H)
-//            ->setParameter('nodeId', $nodeID);
-//        $query = $qb->getQuery();
-//        return $query->getResult();
-//    }
 
-//    /**
-//     * @return Logger|null
-//     */
-//    public function getLogger()
-//    {
-//        return $this->logger;
-//    }
+    /**
+     * Get list of nodes from DB
+     *
+     * @return Node[]|null
+     */
+    public function getNodes()
+    {
+        $nodeRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
+        return $nodeRepository->findAll();
+    }
 
-//    /**
-//     * Get last data timestamp for given nodeId
-//     *
-//     * @param $nodeId
-//     * @return DateTime|null
-//     */
-//    public function getLastTimestamp($nodeId)
-//    {
-//        $nodeStatsRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-//        $qb = $nodeStatsRepository->createQueryBuilder('ns');
-//        $qb->join('ns.node', 'node')
-//            ->join('ns.dataTimestamp', 'ds')
-//            ->where('node.nodeId = :nodeId')
-//            ->orderBy('ds.timestamp', 'desc')
-//            ->setMaxResults(1)
-//            ->setParameter('nodeId', $nodeId);
-//        $query = $qb->getQuery();
-//        $result = $query->getResult();
-//        if ($result && count($result) >= 1) {
-//            return $result[0]->getOrCreateDataTimestamp()->getTimestamp();
-//        }
-//        return null;
-//    }
+    /**
+     * Get data for specified node of the last 24hrs
+     *
+     * @param $nodeID
+     * @return NodeStats[]|null An array of NodeStats or null
+     */
+    public function getNodeData($nodeID)
+    {
+        $timestampMinus24H = new DateTime($this->timeStamp->format('c'));
+        $timestampMinus24H->sub(new DateInterval('PT24H'));
 
-//    /**
-//     * Look for Datatimestamp that is equal to the curent timestamp
-//     * If non is found, create one else return the existing
-//     *
-//     * @param DateTimeInterface $dataTimestamp The timestamp the nodes.json is signed with
-//     * @return DataTimestamp A new or existing DataTimestamp
-//     */
-//    private function getOrCreateDataTimestamp(DateTimeInterface $dataTimestamp)
-//    {
-//        $this->logger->addDebug('Getting DataTimestamp', [get_class()]);
-//
-//        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\DataTimestamp');
-//        $result = $nodeTimestampRepository->findBy(['timestamp' => $this->timeStamp]);
-//        if ($result) {
-//            return $result[0];
-//        } else {
-//            /**
-//             * There was no timestamp
-//             */
-//            $this->logger->addDebug('Creating new DataTimestamp ' . $this->timeStamp->format('c'), [get_class()]);
-//            $timestamp = new DataTimestamp($this->timeStamp, $dataTimestamp);
-//            return $timestamp;
-//        }
-//    }
+        $nodeDataRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
 
-//    /**
-//     * Look for a Node with the nodeId $nodeId
-//     * Create one if none is found
-//     *
-//     * @param $nodeId
-//     * @return Node
-//     */
-//    private function getOrCreateNode($nodeId)
-//    {
-//        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
-//        $result = $nodeTimestampRepository->findBy(['nodeId' => $nodeId]);
-//        if ($result) {
-//            return $result[0];
-//        } else {
-//            /**
-//             * There was no node
-//             */
-//            $node = new Node();
-//            $node->setNodeId($nodeId);
-//            return $node;
-//        }
-//    }
+        $qb = $nodeDataRepository->createQueryBuilder('nodeStats');
+        $qb->join('nodeStats.statTimestamp', 'statTimestamp')
+            ->join('nodeStats.node', 'node')
+            ->where('statTimestamp.created > :timestamp')
+            ->andWhere('node.nodeId = :nodeId')
+            ->orderBy('statTimestamp.created', 'ASC')
+            ->setParameter('timestamp', $timestampMinus24H)
+            ->setParameter('nodeId', $nodeID);
+        $query = $qb->getQuery();
+        return $query->getResult();
+    }
 
-//    /**
-//     * Return existing node
-//     *
-//     * @param string $nodeId
-//     * @return Node|null
-//     */
-//    public function getExistingNode($nodeId)
-//    {
-//        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
-//        $result = $nodeTimestampRepository->findBy(['nodeId' => $nodeId]);
-//        if ($result) {
-//            return $result[0];
-//        }
-//        return null;
-//    }
-//
-//    /**
-//     * Return the number of dataTimestamps that are younger than 24hrs
-//     * @return int
-//     */
-//    public function getNumberOfTimestamps()
-//    {
-//        $timestamp = new DateTime($this->timeStamp->format('c'));
-//        $timestamp = $timestamp->sub(new DateInterval('PT24H'));
-//        $dataTimestampRepo = $this->entityManager->getRepository('FFClientGraph\Entities\DataTimestamp');
-//        $qb = $dataTimestampRepo->createQueryBuilder('dts');
-//        $qb->where('dts.timestamp > :timestamp')
-//            ->setParameter('timestamp', $timestamp);
-//        $query = $qb->getQuery();
-//        $result = $query->getResult();
-//        return count($result);
-//    }
-//
+    /**
+     * Get newest NodeStatsTimestamp for given nodeId
+     *
+     * @param $nodeId
+     * @return NodeStatsTimestamp|null
+     */
+    public function getNewestNodeStatsTimestamp($nodeId)
+    {
+        $nodeStatsRepository = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStats');
+        $qb = $nodeStatsRepository->createQueryBuilder('ns');
+        $qb->join('ns.node', 'node')
+            ->join('ns.statTimestamp', 'ds')
+            ->where('node.nodeId = :nodeId')
+            ->orderBy('ds.created', 'desc')
+            ->setMaxResults(1)
+            ->setParameter('nodeId', $nodeId);
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+        if ($result && count($result) >= 1) {
+            /** @var NodeStats[] $result */
+            return $result[0]->getStatTimestamp();
+        }
+        return null;
+    }
+
+    /**
+     * Return existing node
+     *
+     * @param string $nodeId
+     * @return Node|null
+     */
+    public function getExistingNode($nodeId)
+    {
+        $nodeTimestampRepository = $this->entityManager->getRepository('FFClientGraph\Entities\Node');
+        $result = $nodeTimestampRepository->findOneBy(['nodeId' => $nodeId]);
+        if ($result) {
+            return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Return the number of dataTimestamps that are younger than 24hrs
+     * @return int
+     */
+    public function getNumberOfNodeStatsTimestamps()
+    {
+        $timestamp = new DateTime($this->timeStamp->format('c'));
+        $timestamp = $timestamp->sub(new DateInterval('PT24H'));
+        $dataTimestampRepo = $this->entityManager->getRepository('FFClientGraph\Entities\NodeStatsTimestamp');
+        $qb = $dataTimestampRepo->createQueryBuilder('dts');
+        $qb->where('dts.created > :timestamp')
+            ->setParameter('timestamp', $timestamp);
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+        return count($result);
+    }
+
     /**
      * Function to delete obsolete data from the database
      * Delete all data that is older than 24hrs

@@ -12,12 +12,15 @@ namespace FFClientGraph;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMInvalidArgumentException;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\Entities\Hardware;
 use FFClientGraph\Entities\Node;
 use FFClientGraph\Entities\NodeInfo;
+use FFClientGraph\Entities\NodeStats;
 use FFClientGraph\Entities\NodeStatsTimestamp;
 
 class TestUtils
@@ -59,38 +62,44 @@ class TestUtils
         return EntityManager::create($DBConnection, $ORMConfig);
     }
 
-//    /**
-//     * @param EntityManager $em
-//     * @param String $nodeId
-//     * @param DateTime $timestamp
-//     */
-//    public static function insertNodeData(EntityManager $em, $nodeId, $timestamp)
-//    {
-//        //TODO Adapt to new Scheme
-//        $nodeRepo = $em->getRepository('FFClientGraph\Entities\Node');
-//        $result = $nodeRepo->findBy(['nodeId' => $nodeId]);
-//        if ($result && count($result) >= 1) {
-//            $node = $result[0];
-//        } else {
-//            $node = new Node();
-//            $node->setNodeId($nodeId);
-//            $node->setName($nodeId);
-//        }
-//
-//        $statData = new NodeStats();
-//        $statData->setClients(mt_rand(0, 8));
-//        $statData->setNode($node);
-//
-//        $dataTimestamp = new DataTimestamp($timestamp);
-//        $dataTimestamp->addStatData($statData);
-//
-//        $statData->setDataTimestamp($dataTimestamp);
-//
-//        $node->addNodeStats($statData);
-//
-//        $em->persist($statData);
-//        $em->flush($statData);
-//    }
+    /**
+     * @param EntityManager $em
+     * @param String $nodeId
+     * @param DateTime $timestamp
+     */
+    public static function insertNodeData(EntityManager $em, $nodeId, $timestamp)
+    {
+        try {
+
+            $nodeRepo = $em->getRepository('FFClientGraph\Entities\Node');
+            $node = $nodeRepo->findOneBy(['nodeId' => $nodeId]);
+            if (!$node) {
+                $node = new Node();
+                $node->setNodeId($nodeId);
+            }
+
+            $dataTimestamp = NodeStatsTimestamp::getOrCreate($em, $timestamp, $timestamp);
+
+            $nodeDataArray['statistics']['memory_usage'] = mt_rand(0, 100) / 100;
+            $nodeDataArray['statistics']['clients'] = mt_rand(0, 20);
+            $nodeDataArray['statistics']['traffic']['rx']['bytes'] = 0;
+            $nodeDataArray['statistics']['traffic']['tx']['bytes'] = 0;
+
+            $statData = NodeStats::create($node, $dataTimestamp, $nodeDataArray);
+
+            $nodeInfoArray['nodeinfo']['hostname'] = $nodeId;
+            $nodeInfoArray['nodeinfo']['hardware']['model'] = 'testmodel';
+
+            NodeInfo::create($em, $node, $nodeInfoArray);
+
+            $em->persist($statData);
+            $em->flush($statData);
+        } catch (ORMInvalidArgumentException $exception) {
+
+        } catch (OptimisticLockException $exception) {
+
+        }
+    }
 
     /**
      * Set up entity classes
@@ -156,8 +165,8 @@ class TestUtils
     public static function insertDataTimestamp($timestamp, $dataTime = null)
     {
         $dataTimestamp = new NodeStatsTimestamp();
-        $dataTimestamp->setTimestamp($timestamp);
-        $dataTimestamp->setDataDateTime($dataTime);
+        $dataTimestamp->setCreated($timestamp);
+        $dataTimestamp->setDataTimestamp($dataTime);
 
         $entityManager = self::getEntityManager();
         $entityManager->persist($dataTimestamp);

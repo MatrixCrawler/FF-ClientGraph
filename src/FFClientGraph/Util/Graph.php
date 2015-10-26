@@ -7,10 +7,13 @@ use CpChart\Classes\pImage;
 use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\ORMInvalidArgumentException;
 use Exception;
 use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
 use FFClientGraph\Entities\NodeStats;
+use FFClientGraph\Entities\NodeStatsTimestamp;
 use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -81,50 +84,58 @@ class Graph
      */
     public function createGraph($nodeID)
     {
-        $this->logger->addDebug("Create Graph :" . $nodeID, [get_class()]);
+        $this->logger->addDebug('Create Graph :' . $nodeID, [get_class()]);
         $db = new DB($this->logLevel, $this->entityManager);
         $nodeData = $db->getNodeData($nodeID);
 
         $nodeName = 'Unbekannt';
         if ($nodeData && count($nodeData) >= 1) {
-            $nodeName = $db->getExistingNode($nodeID)->getName();
-            $this->logger->addDebug("Nodename :" . $nodeName, [get_class()]);
+            $nodeName = $db->getExistingNode($nodeID)->getNodeInfo()->getHostname();
+            $this->logger->addDebug('Nodename :' . $nodeName, [get_class()]);
         }
 
-        $lastTimestamp = $db->getLastTimestamp($nodeID);
+        $newestNodeStatsTimestamp = $db->getNewestNodeStatsTimestamp($nodeID);
 
-        $numberOfStamps = $db->getNumberOfTimestamps();
+        $numberOfNodeStatsTimestamps = $db->getNumberOfNodeStatsTimestamps();
 
         $data = $this->prepareData($nodeData);
-        $image = $this->prepareGraph($data, $lastTimestamp, $numberOfStamps, $nodeName);
+
+        $image = $this->prepareGraph($data, $newestNodeStatsTimestamp, $numberOfNodeStatsTimestamps, $nodeName);
         $image->render(Config::CACHE_FOLDER . '/' . $nodeID . '-clients.png');
     }
 
     /**
      * Function to prepare the data that is to be shown in the graph
      *
-     * @param NodeStats[] $nodeData An array of NodeStats
+     * @param NodeStats[] $nodeStats An array of NodeStats
      * @return pData
      */
-    private function prepareData($nodeData)
+    private function prepareData($nodeStats)
     {
         $data = new pData();
 
         $clientPoints = array();
-        $labelPoints = array();
+        $timestampPoints = array();
 
-        if (!$nodeData || count($nodeData) === 0) {
+        if (!$nodeStats || count($nodeStats) === 0) {
             $clientPoints[] = VOID;
-            $labelPoints[] = VOID;
+            $timestampPoints[] = VOID;
         }
-        foreach ($nodeData as $nodeStat) {
-            $clientPoints[] = $nodeStat->getClients();
-            $timestamp = $nodeStat->getStatTimestamp()->getCreated()->setTimezone(new DateTimeZone('Europe/Berlin'))->format('D H:i');
-            $labelPoints[] = $timestamp;
+        foreach ($nodeStats as $nodeStat) {
+            try {
+                $this->entityManager->refresh($nodeStat);
+                $clientPoints[] = $nodeStat->getClients();
+                $timestamp = $nodeStat->getStatTimestamp()->getCreated()->setTimezone(new DateTimeZone('Europe/Berlin'))->format('D H:i');
+                $timestampPoints[] = $timestamp;
+            } catch (ORMInvalidArgumentException $exception) {
+                $this->logger->addError('An ORMInvalidArgumentException occured. Switch to DEBUG Loggin for more inforamtion',[get_class()]);
+                $this->logger->addError($exception->getCode(),[get_class()]);
+                $this->logger->addDebug($exception->getTraceAsString(),[get_class()]);
+            }
         }
 
         $data->addPoints($clientPoints, 'Clients');
-        $data->addPoints($labelPoints, 'Timestamp');
+        $data->addPoints($timestampPoints, 'Timestamp');
 
         /**
          * Add name to the y axis
@@ -144,22 +155,17 @@ class Graph
      * Function to prepare the graph
      *
      * @param pData $data
-     * @param DateTime|null $lastTimestamp
-     * @param $skipLabel
+     * @param NodeStatsTimestamp $newestNodeStatsTimestamp
+     * @param $numberOfDatatsets
      * @param $nodeName
      * @return pImage
-     * @throws Exception
      */
-    private function prepareGraph(pData $data, $lastTimestamp, $skipLabel, $nodeName)
+    private function prepareGraph(pData $data, $newestNodeStatsTimestamp, $numberOfDatatsets, $nodeName)
     {
         /**
          * Create new image
          */
         $image = new pImage(Constants::GRAPH_WIDTH, Constants::GRAPH_HEIGHT, $data);
-
-        if (!$lastTimestamp) {
-            $lastTimestamp = new DateTime();
-        }
 
         /**
          * Set image background
@@ -194,7 +200,7 @@ class Graph
             'CycleBackground' => true
         ];
 
-        $scaleFormat['LabelSkip'] = round($skipLabel / 6);
+        $scaleFormat['LabelSkip'] = round($numberOfDatatsets / 6);
 
         $image->drawScale($scaleFormat);
 
@@ -208,9 +214,9 @@ class Graph
 
 
         $dateTime = new DateTime();
-        $dateTime->setTimezone(new DateTimeZone('UTC'));
 
-        $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 35, "Last valid data: " . $lastTimestamp->format('d.m.Y H:i:s'), array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
+        $lastValidDataTimestamp = $newestNodeStatsTimestamp->getDataTimestamp() !== null ? $newestNodeStatsTimestamp->getDataTimestamp()->format('d.m.Y H:i:s') : 'Unbekannt';
+        $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 35, "Last valid data: " . $lastValidDataTimestamp, array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
         $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 50, "Image generated: " . $dateTime->format('d.m.Y H:i:s'), array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
         $image->drawText(Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 40, 'Node: ' . $nodeName, array('FontSize' => 10, 'Align' => TEXT_ALIGN_BOTTOMLEFT));
 

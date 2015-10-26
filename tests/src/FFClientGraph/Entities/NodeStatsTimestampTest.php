@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes Brunswicker
- * Date: 22.10.2015
- * Time: 15:31
- */
-
 namespace FFClientGraph\Entities;
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
@@ -13,31 +6,11 @@ require_once __DIR__ . '/../TestUtils.php';
 
 use DateInterval;
 use DateTime;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Tools\SchemaTool;
 use FFClientGraph\TestUtils;
-use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 
 class NodeStatsTimestampTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var SchemaTool
-     */
-    private static $schemaTool;
-
-//    public static function setUpBeforeClass()
-//    {
-//        try {
-//            $entityManager = TestUtils::getEntityManager();
-//            self::$schemaTool = new SchemaTool($entityManager);
-//            self::$schemaTool->updateSchema(TestUtils::setUpClasses($entityManager));
-//        } catch (ORMException $exception) {
-//            die('There was an ORMException in ' . get_class() . '\n Please check your configuration.\n' . $exception->getMessage());
-//        } catch (InvalidArgumentException $exception) {
-//            die('There was an invalid argument exception in ' . get_class() . '\n Please check your configuration.\n' . $exception->getMessage());
-//        }
-//    }
 
     public function testGetOrCreate_returnNew()
     {
@@ -109,8 +82,4 @@ class NodeStatsTimestampTest extends PHPUnit_Framework_TestCase
 
     }
 
-//    public static function tearDownAfterClass()
-//    {
-//        TestUtils::deleteDB();
-//    }
 }

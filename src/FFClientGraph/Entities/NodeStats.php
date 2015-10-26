@@ -39,7 +39,7 @@ class NodeStats
     protected $node;
 
     /**
-     * @ManyToOne(targetEntity="NodeStatsTimestamp", inversedBy="nodeStats", cascade={"persist"})
+     * @ManyToOne(targetEntity="NodeStatsTimestamp", inversedBy="nodeStats", cascade={"persist"}, fetch="EAGER")
      * @JoinColumn(name="timestamp_id", referencedColumnName="id")
      * @var NodeStatsTimestamp
      */

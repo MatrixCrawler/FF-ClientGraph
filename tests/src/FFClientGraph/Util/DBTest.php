@@ -34,6 +34,7 @@ class DBTest extends PHPUnit_Framework_TestCase
 
         $entityManager = TestUtils::getEntityManager();
         $nodeRepository = $entityManager->getRepository('FFClientGraph\Entities\Node');
+        /** @var Node $result */
         $result = $nodeRepository->findOneBy(['nodeId' => '68725120d3ed']);
 
         self::assertNotNull($result);
@@ -48,101 +49,51 @@ class DBTest extends PHPUnit_Framework_TestCase
         return $db;
     }
 
-//    /**
-//     * @depends testSaveNode
-//     * @param DB $db
-//     */
-//    public function testThatDataWillNotBeSavedIfWeHaveTheSameDBInstance(DB $db)
-//    {
-//        sleep(1);
-//        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.json'), true);
-//        $db->saveSingleNodeData($nodeData);
-//
-//        $nodeRepository = self::$entityManager->getRepository('FFClientGraph\Entities\Node');
-//        $node = $nodeRepository->findBy(['nodeId' => '68725120d3ed']);
-//
-//        $nodeStatsRepository = self::$entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-//        $nodeData = $nodeStatsRepository->findBy(['node' => $node]);
-//
-//        self::assertEquals(1, count($nodeData));
-//    }
-//
-//    /**
-//     * @depends testThatDataWillNotBeSavedIfWeHaveTheSameDBInstance
-//     */
-//    public function testThatDataWillOnlyBeSavedIfWeHaveANewDBInstance()
-//    {
-//        sleep(1);
-//        $db = new DB(self::$logLevel, self::$entityManager);
-//        $nodeData = json_decode(file_get_contents(__DIR__ . '/../../../resources/singleNode.json'), true);
-//        $db->saveSingleNodeData($nodeData);
-//
-//        $nodeRepository = self::$entityManager->getRepository('FFClientGraph\Entities\Node');
-//        $node = $nodeRepository->findBy(['nodeId' => '68725120d3ed']);
-//
-//        $nodeStatsRepository = self::$entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-//        $nodeData = $nodeStatsRepository->findBy(['node' => $node]);
-//
-//        self::assertEquals(2, count($nodeData));
-//    }
-//
-//    /**
-//     * @depends testSaveNode
-//     */
-//    public function testGetNodeData()
-//    {
-//        $db = new DB(self::$logLevel, self::$entityManager);
-//        TestUtils::clearDB(self::$schemaTool, self::$classes);
-//
-//        $dt = new DateTime();
-//
-//        TestUtils::insertNodeData(self::$entityManager, 'blaID', $dt);
-//        TestUtils::insertNodeData(self::$entityManager, 'blaID', $dt);
-//        $dt->sub(new DateInterval('PT4H'));
-//        TestUtils::insertNodeData(self::$entityManager, 'blaID', $dt);
-//        $dt->sub(new DateInterval('PT4H'));
-//        TestUtils::insertNodeData(self::$entityManager, 'blaID', $dt);
-//        $dt->sub(new DateInterval('PT4H'));
-//        TestUtils::insertNodeData(self::$entityManager, 'blaID', $dt);
-//        $dt->sub(new DateInterval('PT4H'));
-//        TestUtils::insertNodeData(self::$entityManager, 'blaID', $dt);
-//        $dt->sub(new DateInterval('PT4H'));
-//        TestUtils::insertNodeData(self::$entityManager, 'blaID', $dt);
-//        $dt->sub(new DateInterval('PT5H'));
-//        TestUtils::insertNodeData(self::$entityManager, 'blaID', $dt);
-//
-//        $nodeDataRepository = self::$entityManager->getRepository('FFClientGraph\Entities\NodeStats');
-//        $qb = $nodeDataRepository->createQueryBuilder('nd');
-//        $qb->join('nd.dataTimestamp', 'ds')
-//            ->join('nd.node', 'node')
-//            ->where('ds.timestamp > :timestamp')
-//            ->setParameter('timestamp', self::$dateTime->sub(new DateInterval('PT24H')));
-//        $query = $qb->getQuery();
-//        $result = $query->getResult();
-//
-//        $testResult = $db->getNodeData('blaID');
-//        self::assertEquals(count($testResult), count($result));
-//        self::assertInstanceOf('FFClientGraph\Entities\NodeStats', $testResult[0]);
-//        self::assertInstanceOf('FFClientGraph\Entities\Node', $testResult[0]->getNode());
-//        self::assertNotNull($testResult[0]->getNode()->getName());
-//        self::assertNotEmpty($testResult[0]->getNode()->getName());
-//    }
-//
-//    public function testGetNodes()
-//    {
-//        $db = new DB(self::$logLevel, self::$entityManager);
-//        TestUtils::clearDB(self::$schemaTool, self::$classes);
-//
-//        for ($i = 0; $i < 10; $i++) {
-//            TestUtils::insertNode(self::$entityManager, 'TestNode' . $i);
-//        }
-//
-//        $result = $db->getNodes();
-//        self::assertEquals(10, count($result));
-//        self::assertInstanceOf('FFClientGraph\Entities\Node', $result[0]);
-//    }
-//
+    /**
+     * @depends testSaveSingleNode
+     */
+    public function testGetNodeData()
+    {
+        TestUtils::clearDB();
+        $entityManager = TestUtils::getEntityManager();
+        $db = new DB(self::$logLevel, $entityManager);
 
+        $dt = new DateTime();
+        $dateTime = new DateTime();
+
+        TestUtils::insertNodeData($entityManager, 'blaID', $dt);
+        TestUtils::insertNodeData($entityManager, 'blaID', $dt);
+        $dt->sub(new DateInterval('PT4H'));
+        TestUtils::insertNodeData($entityManager, 'blaID', $dt);
+        $dt->sub(new DateInterval('PT4H'));
+        TestUtils::insertNodeData($entityManager, 'blaID', $dt);
+        $dt->sub(new DateInterval('PT4H'));
+        TestUtils::insertNodeData($entityManager, 'blaID', $dt);
+        $dt->sub(new DateInterval('PT4H'));
+        TestUtils::insertNodeData($entityManager, 'blaID', $dt);
+        $dt->sub(new DateInterval('PT4H'));
+        TestUtils::insertNodeData($entityManager, 'blaID', $dt);
+        $dt->sub(new DateInterval('PT5H'));
+        TestUtils::insertNodeData($entityManager, 'blaID', $dt);
+
+        $nodeDataRepository = $entityManager->getRepository('FFClientGraph\Entities\NodeStats');
+        $qb = $nodeDataRepository->createQueryBuilder('nd');
+        $qb->join('nd.statTimestamp', 'ds')
+            ->join('nd.node', 'node')
+            ->where('ds.created > :timestamp')
+            ->andWhere('node.nodeId = :nodeId')
+            ->setParameter('timestamp', $dateTime->sub(new DateInterval('PT24H')))
+            ->setParameter('nodeId', 'blaID');
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+
+        $testResult = $db->getNodeData('blaID');
+        self::assertEquals(count($testResult), count($result));
+        self::assertInstanceOf('FFClientGraph\Entities\NodeStats', $testResult[0]);
+        self::assertInstanceOf('FFClientGraph\Entities\Node', $testResult[0]->getNode());
+        self::assertNotNull($testResult[0]->getNode()->getNodeInfo());
+        self::assertNotEmpty($testResult[0]->getNode()->getNodeInfo()->getHostname());
+    }
 
     public function testSaveNodesSavesAllNodesFromJSON()
     {
@@ -161,7 +112,7 @@ class DBTest extends PHPUnit_Framework_TestCase
         $result = $nodeRepository->findAll();
         self::assertEquals(5, count($result));
         /** @var Node $node */
-        foreach ($result as $node){
+        foreach ($result as $node) {
             self::assertInstanceOf('FFClientGraph\Entities\NodeStats', $node->getNodeStats()[0]);
         }
         $entityManager->close();
@@ -199,22 +150,76 @@ class DBTest extends PHPUnit_Framework_TestCase
         self::assertLessThanOrEqual(25, count($dsResult));
     }
 
-    public function testNumberOfTimestamps()
+    public function testGetExistingNodeIsNotNull()
     {
         TestUtils::clearDB();
+        $entityManager = TestUtils::getEntityManager();
+        TestUtils::insertNodeData($entityManager, 'blaID', new DateTime());
 
+        $db = new DB(self::$logLevel, $entityManager);
+        $node = $db->getExistingNode('blaID');
+
+        self::assertNotNull($node);
+    }
+
+    public function testGetExistingNodeIsNullIfNodeDoesNotExist()
+    {
+        TestUtils::clearDB();
         $entityManager = TestUtils::getEntityManager();
 
         $db = new DB(self::$logLevel, $entityManager);
-        $timestamp = new DateTime();
-        for ($i = 0; $i < 48; $i++) {
-            TestUtils::insertNodeData(self::$entityManager, 'someNodeId', $timestamp);
-            $timestamp = $timestamp->sub(new DateInterval('PT1H'));
+        $node = $db->getExistingNode('blaID');
+
+        self::assertNull($node);
+    }
+
+    public function testGetNewestNodeStatsTimestamp()
+    {
+        TestUtils::clearDB();
+        $entityManager = TestUtils::getEntityManager();
+
+        $dateTime = new DateTimeImmutable();
+
+        for ($i = 0; $i < 50; $i++) {
+            $modifiedDateTime = new DateTime($dateTime->sub(new DateInterval('PT' . $i . 'M'))->format('c'));
+            TestUtils::insertNodeData($entityManager, 'TestNode', $modifiedDateTime);
         }
+        $db = new DB(self::$logLevel, $entityManager);
+        $result = $db->getNewestNodeStatsTimestamp('TestNode');
+        self::assertNotNull($result);
+        self::assertInstanceOf('FFClientGraph\Entities\NodeStatsTimestamp', $result);
+        self::assertEquals($dateTime->format('c'), $result->getCreated()->format('c'));
+    }
 
-        $result = $db->getNumberOfTimestamps();
+    public function testGetNumberOfNodeStatsTimestamps()
+    {
+        TestUtils::clearDB();
+        $entityManager = TestUtils::getEntityManager();
 
-        self::assertLessThanOrEqual(25, $result);
+        $dateTime = new DateTimeImmutable();
+
+        for ($i = 0; $i < 50; $i++) {
+            $modifiedDateTime = new DateTime($dateTime->sub(new DateInterval('PT' . $i . 'M'))->format('c'));
+            TestUtils::insertNodeData($entityManager, 'TestNode', $modifiedDateTime);
+        }
+        $db = new DB(self::$logLevel, $entityManager);
+        $result = $db->getNumberOfNodeStatsTimestamps();
+        self::assertNotNull($result);
+        self::assertEquals(50, $result);
+    }
+
+    public function testGetNodes() {
+        TestUtils::clearDB();
+        $entityManager = TestUtils::getEntityManager();
+        $dateTime = new DateTimeImmutable();
+
+        for ($i = 0; $i < 50; $i++) {
+            TestUtils::insertNodeData($entityManager, 'TestNode_'.$i, $dateTime);
+        }
+        $db = new DB(self::$logLevel, $entityManager);
+        $result = $db->getNodes();
+        self::assertNotNull($result);
+        self::assertEquals(50, count($result));
     }
 
     public static function tearDownAfterClass()
