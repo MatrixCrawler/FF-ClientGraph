@@ -1,16 +1,11 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes
- * Date: 19.10.2015
- * Time: 22:41
- */
-
 namespace FFClientGraph\Entities;
 
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
@@ -22,8 +17,15 @@ use Doctrine\ORM\Mapping\Table;
 class Hardware
 {
 
+
     /**
      * @Id
+     * @GeneratedValue(strategy="AUTO")
+     * @Column(type="integer")
+     */
+    protected $id;
+
+    /**
      * @Column(type="string", unique=true)
      */
     protected $model;
@@ -93,11 +95,11 @@ class Hardware
      *
      * @param EntityManager $entityManager
      * @param array $nodeInfoArray
-     * @return Hardware
+     * @return Hardware|null
      */
     public static function getOrCreate(EntityManager $entityManager, $nodeInfoArray)
     {
-        $model = $nodeInfoArray['nodeinfo']['hardware']['model'];
+        $model = isset($nodeInfoArray['nodeinfo']['hardware']['model']) ? $nodeInfoArray['nodeinfo']['hardware']['model'] : 'UNKNOWN';
 
         $hardwareRepo = $entityManager->getRepository('FFClientGraph\Entities\Hardware');
         $result = $hardwareRepo->findOneBy(['model' => $model]);

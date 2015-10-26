@@ -97,7 +97,7 @@ class JSON
         $this->logger->addDebug('Result: ' . $lastRefreshPlusNMinutes->format('c'), [get_class()]);
         $this->logger->addDebug('Result Remote: ' . $lastRemoteRefresh->format('c'), [get_class()]);
 
-        $fileIsToOld = $lastRefreshPlusNMinutes > $lastRemoteRefresh;
+        $fileIsToOld = $lastRefreshPlusNMinutes < $lastRemoteRefresh;
         if ($fileIsToOld) {
             $this->logger->addDebug('File is to old. Cache is invalid', [get_class()]);
             return false;

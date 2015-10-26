@@ -16,6 +16,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\ORMInvalidArgumentException;
+use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 use Exception;
 use FFClientGraph\Config\Config;
@@ -80,37 +81,7 @@ class DB
         }
 
         if (!$entityManager) {
-
-            /**
-             * Setup ORM and EntityManager
-             */
-            $ORMConfig = Setup::createAnnotationMetadataConfiguration(array(Constants::ENTITY_PATH), Constants::DEVMODE);
-
-            $DBConnection = array(
-                'driver' => Config::DB_DRIVER
-            );
-            switch (Config::DB_DRIVER) {
-                case Constants::DB_DRIVER_SQLITE:
-                    $DBConnection['path'] = Config::DB_PATH;
-                    break;
-                case Constants::DB_DRIVER_MYSQL:
-                    $mysqlConfig = array(
-                        'user' => Config::DB_USER,
-                        'password' => Config::DB_PASSWORD,
-                        'host' => Config::DB_HOST,
-                        'dbname' => Config::DB_NAME
-                    );
-                    $DBConnection = array_merge($DBConnection, $mysqlConfig);
-                    break;
-            }
-
-            try {
-                $this->entityManager = EntityManager::create($DBConnection, $ORMConfig);
-            } catch (ORMException $exception) {
-                die('There was an ORMException in ' . get_class() . '\n Please check your configuration.\n' . $exception->getMessage());
-            } catch (InvalidArgumentException $exception) {
-                die('There was an invalid argument exception in ' . get_class() . '\n Please check your configuration.\n' . $exception->getMessage());
-            }
+            $this->entityManager = Util::createEntityManager();
         } else {
             $this->entityManager = $entityManager;
         }
@@ -320,17 +291,25 @@ class DB
         }
         $this->entityManager->flush();
     }
-//
-//    /**
-//     * Update the database schema if needed
-//     */
-//    public function updateSchema()
-//    {
-//        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\Node');
-//        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
-//        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\DataTimestamp');
-//
-//        $schemaTool = new SchemaTool($this->entityManager);
-//        $schemaTool->updateSchema($classes);
-//    }
+
+    /**
+     * Update the database schema if needed
+     */
+    public function updateSchema($create = false)
+    {
+        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\Node');
+        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\NodeStats');
+        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\NodeStatsTimestamp');
+        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\Hardware');
+        $classes[] = $this->entityManager->getClassMetadata('FFClientGraph\Entities\NodeInfo');
+
+        $schemaTool = new SchemaTool($this->entityManager);
+        if (!$create) {
+            $this->logger->addInfo('Updating db schema', [get_class()]);
+            $schemaTool->updateSchema($classes);
+        } else {
+            $this->logger->addInfo('Creating db schema', [get_class()]);
+            $schemaTool->createSchema($classes);
+        }
+    }
 }

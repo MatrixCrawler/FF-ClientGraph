@@ -46,19 +46,19 @@ class NodeStats
     protected $statTimestamp;
 
     /**
-     * @Column(type="decimal",scale=16,precision=17 )
+     * @Column(type="decimal",scale=16,precision=17, nullable=true)
      * @var float
      */
     protected $memoryUsage;
 
     /**
-     * @Column(type="bigint")
+     * @Column(type="bigint", nullable=true)
      * @var int
      */
     protected $rx_bytes;
 
     /**
-     * @Column(type="bigint")
+     * @Column(type="bigint", nullable=true)
      * @var int
      */
     protected $tx_bytes;
@@ -179,10 +179,10 @@ class NodeStats
     {
         $nodeStats = new NodeStats();
         $nodeStats->setNode($node);
-        $nodeStats->setMemoryUsage($nodeDataArray['statistics']['memory_usage']);
-        $nodeStats->setClients($nodeDataArray['statistics']['clients']);
-        $nodeStats->setRxBytes($nodeDataArray['statistics']['traffic']['rx']['bytes']);
-        $nodeStats->setTxBytes($nodeDataArray['statistics']['traffic']['tx']['bytes']);
+        $nodeStats->setMemoryUsage(isset($nodeDataArray['statistics']['memory_usage'])?$nodeDataArray['statistics']['memory_usage']:null);
+        $nodeStats->setClients(isset($nodeDataArray['statistics']['clients'])?$nodeDataArray['statistics']['clients']:null);
+        $nodeStats->setRxBytes(isset($nodeDataArray['statistics']['traffic']['rx']['bytes'])?$nodeDataArray['statistics']['traffic']['rx']['bytes']:null);
+        $nodeStats->setTxBytes(isset($nodeDataArray['statistics']['traffic']['tx']['bytes'])?$nodeDataArray['statistics']['traffic']['tx']['bytes']:null);
 
         $nodeStats->setStatTimestamp($nodeStatsTimestamp);
         $nodeStatsTimestamp->addStatData($nodeStats);

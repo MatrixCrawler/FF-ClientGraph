@@ -61,8 +61,11 @@ class Graph
         }
 
         $this->logLevel = $logLevel;
-        $this->entityManager = $entityManager;
-
+        if (!$entityManager) {
+            $this->entityManager = Util::createEntityManager();
+        } else {
+            $this->entityManager = $entityManager;
+        }
     }
 
     /**

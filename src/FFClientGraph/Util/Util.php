@@ -3,7 +3,12 @@
 namespace FFClientGraph\Util;
 
 use DateTime;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Tools\Setup;
+use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
+use InvalidArgumentException;
 
 /**
  * Class Util
@@ -120,5 +125,42 @@ class Util
             return ( bool )preg_match('#^HTTP/.*\s+[(200|301|302)]+\s#i', $headers);
         }
         return false;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public static function createEntityManager() {
+        /**
+         * Setup ORM and EntityManager
+         */
+        $ORMConfig = Setup::createAnnotationMetadataConfiguration(array(Constants::ENTITY_PATH), Constants::DEVMODE);
+
+        $DBConnection = array(
+            'driver' => Config::DB_DRIVER
+        );
+        switch (Config::DB_DRIVER) {
+            case Constants::DB_DRIVER_SQLITE:
+                $DBConnection['path'] = Config::DB_PATH;
+                break;
+            case Constants::DB_DRIVER_MYSQL:
+                $mysqlConfig = array(
+                    'user' => Config::DB_USER,
+                    'password' => Config::DB_PASSWORD,
+                    'host' => Config::DB_HOST,
+                    'dbname' => Config::DB_NAME
+                );
+                $DBConnection = array_merge($DBConnection, $mysqlConfig);
+                break;
+        }
+
+        try {
+            return EntityManager::create($DBConnection, $ORMConfig);
+        } catch (ORMException $exception) {
+            die('There was an ORMException in ' . get_class() . '\n Please check your configuration.\n' . $exception->getMessage());
+        } catch (InvalidArgumentException $exception) {
+            die('There was an invalid argument exception in ' . get_class() . '\n Please check your configuration.\n' . $exception->getMessage());
+        }
     }
 }

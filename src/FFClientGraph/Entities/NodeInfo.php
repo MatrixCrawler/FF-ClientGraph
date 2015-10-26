@@ -33,7 +33,6 @@ class NodeInfo
 
     /**
      * @ManyToOne(targetEntity="Hardware", inversedBy="nodeInfo", cascade={"persist"})
-     * @JoinColumn(name="hardware_id", referencedColumnName="model")
      * @var Hardware
      */
     protected $hardware;

@@ -48,5 +48,5 @@ class Constants
     const DB_DRIVER_SQLITE = 'pdo_sqlite';
     const DB_DRIVER_MYSQL = 'pdo_mysql';
 
-    const DB_SCHEMA_VERSION = '1.0.0';
+    const DB_SCHEMA_VERSION = '1.1.3';
 }

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Johannes Brunswicker
- * Date: 12.10.2015
- * Time: 15:22
- */
 
 namespace FFClientGraph;
 
@@ -59,7 +53,9 @@ class FFClientGraph
      *
      * @param string $nodeFile URI to nodes.js
      */
-    public function refresh($nodeFile = Constants::NODE_FILE) {
+    public function refresh($nodeFile = Constants::NODE_FILE)
+    {
+        $this->testDBVersion();
         /**
          * Get JSON Data from remote Server
          */
@@ -75,7 +71,8 @@ class FFClientGraph
         }
     }
 
-    public function createAllGraphs() {
+    public function createAllGraphs()
+    {
         /**
          * Create all Graphs
          */
@@ -83,15 +80,18 @@ class FFClientGraph
         $graph->createAllGraphs();
     }
 
-    private function testDBVersion() {
+    private function testDBVersion()
+    {
+        $this->logger->addDebug('Checking db schema', [get_class()]);
         $version = '0.0.0';
-        if (file_exists(Config::CACHE_FOLDER.'/dbVersion')) {
-            $version = file_get_contents(Config::CACHE_FOLDER.'/dbVersion');
+        if (file_exists(Config::CACHE_FOLDER . '/dbVersion')) {
+            $version = file_get_contents(Config::CACHE_FOLDER . '/dbVersion');
         }
-        if (version_compare(Constants::DB_SCHEMA_VERSION, $version) > 0){
+        if (version_compare(Constants::DB_SCHEMA_VERSION, $version) > 0) {
+            $this->logger->addDebug('Updating db schema', [get_class()]);
             $db = new DB($this->logLevel);
-            $db->updateSchema();
-            file_put_contents(Config::CACHE_FOLDER.'/dbVersion', Constants::DB_SCHEMA_VERSION);
+            $db->updateSchema($version === '0.0.0');
+            file_put_contents(Config::CACHE_FOLDER . '/dbVersion', Constants::DB_SCHEMA_VERSION);
         }
     }
 
