@@ -97,9 +97,12 @@ class JSON
         $this->logger->addDebug('Result: ' . $lastRefreshPlusNMinutes->format('c'), [get_class()]);
         $this->logger->addDebug('Result Remote: ' . $lastRemoteRefresh->format('c'), [get_class()]);
 
-        $isToOld = $lastRefreshPlusNMinutes > $lastRemoteRefresh;
-        $this->logger->addDebug('Is to old? ' . $isToOld, [get_class()]);
-        return (!$isToOld);
+        $fileIsToOld = $lastRefreshPlusNMinutes > $lastRemoteRefresh;
+        if ($fileIsToOld) {
+            $this->logger->addDebug('File is to old. Cache is invalid', [get_class()]);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -109,6 +112,7 @@ class JSON
      */
     private function getJSONFromCache()
     {
+        $this->logger->addDebug('Get file from cache', [get_class()]);
         if (file_exists(Constants::CACHED_NODE_FILE)) {
             return file_get_contents(Constants::CACHED_NODE_FILE);
         }

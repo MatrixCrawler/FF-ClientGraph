@@ -24,7 +24,7 @@ class JSONTest extends PHPUnit_Framework_TestCase
     /**
      * @var int
      */
-    private $logLevel = Logger::ALERT;
+    private $logLevel = Logger::DEBUG;
 
     public static function setUpBeforeClass()
     {
@@ -66,6 +66,10 @@ class JSONTest extends PHPUnit_Framework_TestCase
         if (file_exists(Constants::CACHED_NODE_FILE)) {
             unlink(Constants::CACHED_NODE_FILE);
         }
+    }
+
+    public function testIsCacheValid_returnsFalse() {
+        $json = new JSON(self::$PATH_TO_LOCAL_JSON, $this->logLevel);
     }
 
 }

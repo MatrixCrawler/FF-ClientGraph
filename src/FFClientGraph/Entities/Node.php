@@ -8,10 +8,13 @@
 
 namespace FFClientGraph\Entities;
 
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
 
 /**
@@ -24,21 +27,25 @@ class Node
     /**
      * @Id
      * @Column(type="string", unique=true)
+     * @var string
      */
     protected $nodeId;
 
     /**
-     * @Column(type="string", nullable=true)
+     * @OneToOne(targetEntity="NodeInfo", mappedBy="node", cascade={"persist", "remove"})
+     * @JoinColumn(name="nodeinfo_id", referencedColumnName="id")
+     * @var NodeInfo
      */
-    protected $name;
+    protected $nodeInfo;
 
     /**
-     * @OneToMany(targetEntity="NodeStats", mappedBy="node", cascade={"persist","remove"},)
+     * @OneToMany(targetEntity="NodeStats", mappedBy="node", cascade={"persist", "remove"},)
+     * @var NodeStats[]
      */
-    protected $statData;
+    protected $nodeStats;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getNodeId()
     {
@@ -46,7 +53,7 @@ class Node
     }
 
     /**
-     * @param mixed $nodeId
+     * @param string $nodeId
      */
     public function setNodeId($nodeId)
     {
@@ -54,35 +61,74 @@ class Node
     }
 
     /**
-     * @return mixed
+     * @return NodeStats[]
      */
-    public function getStatData()
+    public function getNodeStats()
     {
-        return $this->statData;
+        return $this->nodeStats;
     }
 
     /**
      * @param NodeStats $nodeData
      */
-    public function addStatData(NodeStats $nodeData)
+    public function addNodeStats(NodeStats $nodeData)
     {
-        $this->statData[] = $nodeData;
+        $this->nodeStats[] = $nodeData;
     }
 
     /**
-     * @return string
+     * @return NodeInfo
      */
-    public function getName()
+    public function getNodeInfo()
     {
-        return $this->name;
+        return $this->nodeInfo;
     }
 
     /**
-     * @param string $name
+     * @param NodeInfo $nodeInfo
      */
-    public function setName($name)
+    public function setNodeInfo($nodeInfo)
     {
-        $this->name = $name;
+        $this->nodeInfo = $nodeInfo;
+        $nodeInfo->setNode($this);
+    }
+
+    /**
+     * Create a Node
+     *
+     * @param $entityManager
+     * @param $nodeDataArray
+     * @return Node
+     */
+    private static function create($entityManager, $nodeDataArray)
+    {
+        $node = new Node();
+        $node->setNodeId($nodeDataArray['nodeinfo']['node_id']);
+
+        NodeInfo::create($entityManager, $node, $nodeDataArray);
+
+        return $node;
+    }
+
+    /**
+     * Look for Node or create a new one if not existing
+     *
+     * @param EntityManager $entityManager
+     * @param array $nodeDataArray
+     * @return Node
+     */
+    public static function getOrCreate(EntityManager $entityManager, $nodeDataArray)
+    {
+        if (!is_array($nodeDataArray) || !array_key_exists('nodeinfo', $nodeDataArray) || !array_key_exists('node_id', $nodeDataArray['nodeinfo'])) {
+            return null;
+        }
+        $nodeRepository = $entityManager->getRepository('FFClientGraph\Entities\Node');
+        $result = $nodeRepository->findOneBy(['nodeId' => $nodeDataArray['nodeinfo']['node_id']]);
+
+        if ($result) {
+            return $result;
+        }
+        return self::create($entityManager, $nodeDataArray);
     }
 
 }
