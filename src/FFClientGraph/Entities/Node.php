@@ -32,8 +32,8 @@ class Node
     protected $nodeId;
 
     /**
-     * @OneToOne(targetEntity="NodeInfo", mappedBy="node", cascade={"persist", "remove"})
-     * @JoinColumn(name="nodeinfo_id", referencedColumnName="id")
+     * @OneToOne(targetEntity="NodeInfo", cascade={"persist", "remove"})
+     * @JoinColumn(name="nodeInfo_id", referencedColumnName="id")
      * @var NodeInfo
      */
     protected $nodeInfo;

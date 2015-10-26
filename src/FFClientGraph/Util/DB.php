@@ -14,10 +14,8 @@ use DateTimeZone;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\ORM\Tools\Setup;
 use Exception;
 use FFClientGraph\Config\Config;
 use FFClientGraph\Config\Constants;
@@ -123,8 +121,10 @@ class DB
             $this->logger->addDebug('Creating node entity', [get_class()]);
             $node = Node::getOrCreate($entityManager, $nodeDataArray);
 
-            $this->logger->addDebug('Creating nodeInfo entity', [get_class()]);
-            NodeInfo::create($entityManager, $node, $nodeDataArray);
+            if ($node->getNodeInfo() === null) {
+                $this->logger->addDebug('Creating nodeInfo entity', [get_class()]);
+                NodeInfo::create($entityManager, $node, $nodeDataArray);
+            }
 
             $this->logger->addDebug('Creating nodeStats entity', [get_class()]);
             $nodeStats = NodeStats::create($node, $this->nodeStatsTimestamp, $nodeDataArray);

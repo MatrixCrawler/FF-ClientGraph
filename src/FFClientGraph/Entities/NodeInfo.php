@@ -6,9 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
 
 /**
@@ -24,12 +22,6 @@ class NodeInfo
      * @Column(type="integer")
      */
     protected $id;
-
-    /**
-     * @OneToOne(targetEntity="Node", mappedBy="nodeInfo")
-     * @var Node
-     */
-    protected $node;
 
     /**
      * @ManyToOne(targetEntity="Hardware", inversedBy="nodeInfo", cascade={"persist"})
@@ -75,6 +67,7 @@ class NodeInfo
     public function __construct(Node $node = null)
     {
         $this->node = $node;
+        $node->setNodeInfo($this);
     }
 
     /**
@@ -239,7 +232,6 @@ class NodeInfo
 
         $nodeInfo->setHardware(Hardware::getOrCreate($entityManager, $nodeInfoArray));
 
-        $node->setNodeInfo($nodeInfo);
         return $nodeInfo;
     }
 }
