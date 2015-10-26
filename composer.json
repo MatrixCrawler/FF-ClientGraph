@@ -3,7 +3,7 @@
   "description": "Tool to create graphical overview over client history of FF Nodes",
   "minimum-stability": "dev",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "authors": [
     {
       "name": "Johannes Brunswicker",
