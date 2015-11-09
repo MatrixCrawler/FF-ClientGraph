@@ -161,8 +161,7 @@ class DB
             $this->logger->addNotice('No dataTimestamp in nodes.json', [get_class()]);
         } else {
             $this->logger->addDebug('Create timestamp from nodes.json data', [get_class()]);
-            $dataTimestamp = new DateTime($nodeData['timestamp']);
-            $dataTimestamp->setTimezone(new DateTimeZone('UTC'));
+            $dataTimestamp = new DateTime($nodeData['timestamp'], new DateTimeZone('UTC'));
             $this->logger->addDebug('Timestamp: ' . $dataTimestamp->format('c'), [get_class()]);
         }
 

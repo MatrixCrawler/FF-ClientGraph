@@ -122,7 +122,6 @@ class NodeStatsTimestamp
         if ($this->dataTimestamp === null) {
             return null;
         }
-        $this->dataTimestamp = $this->dataTimestamp->setTimezone(new DateTimeZone($this->getDataTimestampTimezone()));
         return $this->dataTimestamp;
     }
 
