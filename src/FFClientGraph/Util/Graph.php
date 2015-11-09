@@ -7,7 +7,6 @@ use CpChart\Classes\pImage;
 use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use Exception;
 use FFClientGraph\Config\Config;
@@ -27,6 +26,9 @@ use Monolog\Logger;
  */
 class Graph
 {
+    private $_maxClients;
+    private $_minClients;
+    private $_averageClients;
     /**
      * @var EntityManager
      */
@@ -115,6 +117,8 @@ class Graph
      */
     private function prepareData($nodeStats)
     {
+        $this->_maxClients = 0;
+        $this->_minClients = 9999999;
         $data = new pData();
 
         $clientPoints = array();
@@ -127,15 +131,25 @@ class Graph
         foreach ($nodeStats as $nodeStat) {
             try {
                 $this->entityManager->refresh($nodeStat);
-                $clientPoints[] = $nodeStat->getClients();
+                $clients = $nodeStat->getClients();
+                if ($clients > $this->_maxClients) {
+                    $this->_maxClients = $clients;
+                }
+                if ($clients < $this->_minClients) {
+                    $this->_minClients = $clients;
+                }
+                $this->_averageClients += $clients;
+                $clientPoints[] = $clients;
                 $timestamp = $nodeStat->getStatTimestamp()->getCreated()->setTimezone(new DateTimeZone('Europe/Berlin'))->format('D H:i');
                 $timestampPoints[] = $timestamp;
             } catch (ORMInvalidArgumentException $exception) {
-                $this->logger->addError('An ORMInvalidArgumentException occured. Switch to DEBUG Loggin for more inforamtion',[get_class()]);
-                $this->logger->addError($exception->getCode(),[get_class()]);
-                $this->logger->addDebug($exception->getTraceAsString(),[get_class()]);
+                $this->logger->addError('An ORMInvalidArgumentException occured. Switch to DEBUG Loggin for more inforamtion', [get_class()]);
+                $this->logger->addError($exception->getCode(), [get_class()]);
+                $this->logger->addDebug($exception->getTraceAsString(), [get_class()]);
             }
         }
+
+        $this->_averageClients /= count($clientPoints);
 
         $data->addPoints($clientPoints, 'Clients');
         $data->addPoints($timestampPoints, 'Timestamp');
@@ -222,6 +236,8 @@ class Graph
         $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 35, "Last valid data: " . $lastValidDataTimestamp, array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
         $image->drawText(Constants::GRAPH_WIDTH - Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 50, "Image generated: " . $dateTime->format('d.m.Y H:i:s'), array('FontSize' => 7, "Align" => TEXT_ALIGN_BOTTOMRIGHT));
         $image->drawText(Constants::GRAPH_RIGHT_OFFSET, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 40, 'Node: ' . $nodeName, array('FontSize' => 10, 'Align' => TEXT_ALIGN_BOTTOMLEFT));
+        $image->drawText(Constants::GRAPH_WIDTH / 2, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 35, "Min/Max clients: " . $this->_minClients . "/" . $this->_maxClients, array('FontSize' => 7, 'Align' => TEXT_ALIGN_BOTTOMMIDDLE));
+        $image->drawText(Constants::GRAPH_WIDTH / 2, Constants::GRAPH_HEIGHT - Constants::GRAPH_BOTTOM_OFFSET + 50, "Average clients online: " . round($this->_averageClients, 2), array('FontSize' => 7, 'Align' => TEXT_ALIGN_BOTTOMMIDDLE));
 
         return $image;
     }
